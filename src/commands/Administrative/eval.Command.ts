@@ -1,4 +1,4 @@
-import { Command } from 'structs/command.Struct'
+import { Command } from '../../structs/command.Struct'
 
 class Eval extends Command {
   constructor() {
@@ -7,11 +7,9 @@ class Eval extends Command {
     this.aliases = []
   }
 
-  public async run(): Promise<void> {
-    const result = (eval(this.args.join(' ')!) as unknown) as string
-
-    await this.message.author.send(result)
+  public run(): void {
+    eval(this.args.join(' ')!)
   }
 }
 
-export default Eval
+export default new Eval()

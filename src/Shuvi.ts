@@ -4,14 +4,13 @@ import {
   Constants,
   Message,
   Presence,
-  PresenceStatusData
+  PresenceStatusData,
+  PresenceStatus,
+  Activity,
+  PartialMessage
 } from 'discord.js'
 import walkSync from 'walk-sync'
-import { Config } from './config'
 import { Command } from './structs/command.Struct'
-
-Config.loadFromFile('./config/.env')
-Config.applyToProcess()
 
 const EVENT = Constants.Events
 
@@ -20,11 +19,8 @@ export interface ShuviClient extends Client {
 }
 
 class Application {
-  private static instance: InstanceType<typeof Application>
-  public static getInstance(): InstanceType<typeof Application> {
-    if (typeof Application.instance === null) {
-      Application.instance = new Application()
-    }
+  private static instance: Application = new Application()
+  public static getInstance(): Application {
     return Application.instance
   }
 
@@ -33,7 +29,7 @@ class Application {
     this.client = new Client()
     this.client.commands = new Map<string, Command>()
 
-    await this.client.login(process.env.TOKEN)
+    await this.client.login(process.env.DISCORD_BOT_TOKEN)
 
     this.loadCommand()
     this.bindEvent()
@@ -50,22 +46,16 @@ class Application {
     return await this.client.user!.setActivity(activity, options)
   }
 
-  public readonly getStatus = (): Presence => {
-    return this.client.user!.presence
-  }
-
-  public readonly getActivity = (): Presence => {
-    return this.client.user!.presence
-  }
-
-  public readonly getPresence = (): Presence => {
-    return this.client.user!.presence
-  }
+  public readonly getStatus = (): PresenceStatus => this.client.user!.presence.status
+  public readonly getActivity = (): Activity => this.client.user!.presence.activities[0]
+  public readonly getActivities = (): Activity[] => this.client.user!.presence.activities
+  public readonly getPresence = (): Presence => this.client.user!.presence
+  public readonly getClient = (): ShuviClient => this.client
 
   private readonly onMessage = async (message: Message): Promise<void> => {
-    if (message.cleanContent.indexOf(process.env.prefix!) !== 0) return
+    if (message.cleanContent.indexOf(process.env.DISCORD_PREFIX!) !== 0) return
 
-    const args = message.cleanContent.slice(process.env.prefix!.length).trim().split(/\s+/g)
+    const args = message.cleanContent.slice(process.env.DISCORD_PREFIX!.length).trim().split(/\s+/g)
     const commandName = args.shift()!.toLowerCase()
 
     if (!this.client.commands?.has(commandName)) {
@@ -79,14 +69,23 @@ class Application {
     }
   }
 
+  private readonly onMessageUpdate = async (
+    prevMessage: Message | PartialMessage,
+    nextMessage: Message | PartialMessage
+  ): Promise<void> => {
+    await prevMessage.author?.send('z')
+    await nextMessage.author?.send('x')
+  }
+
   private readonly loadCommand = (): void => {
-    const files = walkSync('./commands').filter(
-      file => !(file.includes('Command') && (file.endsWith('js') || file.endsWith('ts')))
+    const files = walkSync(`${__dirname}/commands`, { directories: false }).filter(
+      file => file.includes('Command') && (file.endsWith('js') || file.endsWith('ts'))
     )
 
     files.forEach(file => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-var-requires
-      const RunnableCommand = (require(file).default as unknown) as Command
+      const RunnableCommand = (require(`${__dirname}/commands/${file}`)
+        .default as unknown) as Command
 
       RunnableCommand.initialise(this.client)
       RunnableCommand.aliases.unshift(RunnableCommand.name)
@@ -98,8 +97,13 @@ class Application {
     this.client.on(EVENT.CLIENT_READY, () => {
       console.log('ready')
     })
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.client.on(EVENT.DISCONNECT, () => {
+      console.log('disconnecting...')
+    })
+    /* eslint-disable @typescript-eslint/no-misused-promises */
     this.client.on(EVENT.MESSAGE_CREATE, this.onMessage)
+    this.client.on(EVENT.MESSAGE_UPDATE, this.onMessageUpdate)
+    /* eslint-enable */
   }
 }
 

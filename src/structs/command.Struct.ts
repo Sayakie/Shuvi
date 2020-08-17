@@ -25,7 +25,7 @@ abstract class Command {
     return this
   }
 
-  public run(): Promise<void> {
+  public run(): void | Promise<void> {
     throw new Error(`${this.constructor.name} command does not have a run() method.`)
   }
 }

@@ -1,8 +1,12 @@
 {
-  "name": "Shuvi",
+  "name": "shuvi",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc"
+  },
   "dependencies": {
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
@@ -17,6 +21,7 @@
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.0.5",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   }
 }

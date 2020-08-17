@@ -16,7 +16,7 @@ class Config {
   }
 
   public static applyToProcess(): void {
-    process.env = Config.parsed
+    process.env = { ...process.env, ...Config.parsed }
     Config.parsed = {}
   }
 }
