@@ -7,7 +7,8 @@ import {
   PresenceStatusData,
   PresenceStatus,
   Activity,
-  PartialMessage
+  PartialMessage,
+  Collection
 } from 'discord.js'
 import walkSync from 'walk-sync'
 import { Command } from './structs/command.Struct'
@@ -15,7 +16,7 @@ import { Command } from './structs/command.Struct'
 const EVENT = Constants.Events
 
 export interface ShuviClient extends Client {
-  commands?: Map<string, Command>
+  commands?: Collection<string, Command>
 }
 
 class Application {
@@ -25,15 +26,22 @@ class Application {
   }
 
   private client!: ShuviClient
+  private cache = new Collection<number, number>()
   public readonly setup = async (): Promise<void> => {
-    this.client = new Client()
-    this.client.commands = new Map<string, Command>()
-
-    await this.client.login(process.env.DISCORD_BOT_TOKEN)
+    this.client = new Client({
+      messageCacheMaxSize: 1 << 7,
+      messageCacheLifetime: 1 << 13,
+      messageSweepInterval: 1 << 6
+    })
+    this.client.commands = new Collection<string, Command>()
 
     this.loadCommand()
     this.bindEvent()
+    await this.login()
   }
+
+  private readonly login = async (): Promise<string> =>
+    await this.client.login(process.env.DISCORD_BOT_TOKEN)
 
   public readonly setStatus = async (status: PresenceStatusData): Promise<Presence> => {
     return await this.client.user!.setStatus(status)
@@ -53,28 +61,30 @@ class Application {
   public readonly getClient = (): ShuviClient => this.client
 
   private readonly onMessage = async (message: Message): Promise<void> => {
-    if (message.cleanContent.indexOf(process.env.DISCORD_PREFIX!) !== 0) return
+    if (!message.cleanContent.startsWith(process.env.DISCORD_PREFIX!) || message.system) return
 
     const args = message.cleanContent.slice(process.env.DISCORD_PREFIX!.length).trim().split(/\s+/g)
     const commandName = args.shift()!.toLowerCase()
 
     if (!this.client.commands?.has(commandName)) {
-      await message.author.send('zz')
+      await message.author.send('명령어를 찾을 수 없습니다!')
     }
 
     try {
       await this.client.commands!.get(commandName)!.inject(message, args).run()
     } catch (err) {
       await message.channel.send('There was an error while try to run that command!')
+    } finally {
+      // TODO: second parameter to set of user's message id
+      this.cache.set(+message.id, 1)
     }
   }
 
   private readonly onMessageUpdate = async (
-    prevMessage: Message | PartialMessage,
+    _: Message | PartialMessage,
     nextMessage: Message | PartialMessage
   ): Promise<void> => {
-    await prevMessage.author?.send('z')
-    await nextMessage.author?.send('x')
+    await this.onMessage(nextMessage as Message)
   }
 
   private readonly loadCommand = (): void => {
@@ -87,7 +97,7 @@ class Application {
       const RunnableCommand = (require(`${__dirname}/commands/${file}`)
         .default as unknown) as Command
 
-      RunnableCommand.initialise(this.client)
+      RunnableCommand.initialise(Application.getInstance())
       RunnableCommand.aliases.unshift(RunnableCommand.name)
       RunnableCommand.aliases.map(ally => this.client.commands!.set(ally, RunnableCommand))
     })
@@ -103,6 +113,9 @@ class Application {
     /* eslint-disable @typescript-eslint/no-misused-promises */
     this.client.on(EVENT.MESSAGE_CREATE, this.onMessage)
     this.client.on(EVENT.MESSAGE_UPDATE, this.onMessageUpdate)
+    this.client.on(EVENT.WARN, console.warn)
+    this.client.on(EVENT.ERROR, console.error)
+    this.client.on(EVENT.DEBUG, console.debug)
     /* eslint-enable */
   }
 }

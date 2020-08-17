@@ -11,4 +11,4 @@ process.on('SIGINT', () => {
 process.on('unhandledRejection', console.error)
 process.on('uncaughtException', console.error)
 
-void (async () => Application.getInstance().setup())()
+void (async () => await Application.getInstance().setup())()
