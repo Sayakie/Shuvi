@@ -1,5 +1,6 @@
 import { Message } from 'discord.js'
-import { Application } from 'Shuvi'
+import { Application } from '../App'
+import { Category } from './category.Struct'
 
 abstract class Command {
   protected instance!: Application
@@ -11,15 +12,18 @@ abstract class Command {
   protected description: string | undefined
   protected details: string | undefined
   protected usage: string | undefined
-  protected botPermissions: string[] = []
-  protected userPermissions: string[] = []
+  protected category: Category = Category.Uncategorized
+  protected botPermissions: number[] = []
+  protected userPermissions: number[] = []
   protected _guildOnly = false
   protected _ownerOnly = false
   protected _nsfwOnly = false
+  protected active = false
   protected hidden = false
 
   public initialise(Instance: Application): void {
     this.instance = Instance
+    this.active = true
   }
 
   protected noDetails(): void {
@@ -43,6 +47,10 @@ abstract class Command {
   }
 
   public inject(message: Message, args: string[]): Command {
+    if (!this.active) {
+      throw new Error(`${this.constructor.name} command does not active!`)
+    }
+
     this.message = message
     this.args = args
     return this
