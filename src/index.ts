@@ -1,4 +1,4 @@
-import { Application } from './Shuvi'
+import { Application } from './App'
 import { Config } from './config'
 
 Config.loadFromFile(`${process.cwd()}/.env`)
