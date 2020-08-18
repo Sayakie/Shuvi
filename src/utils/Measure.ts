@@ -7,18 +7,20 @@ class Measure {
   private static readonly calculateTime = (): number =>
     (Measure.period = Measure.beginTime - Measure.endTime)
 
-  public static readonly test = async (
+  public static readonly test = async <T>(
     label: string,
-    fn: () => void | Promise<void>
-  ): Promise<void> => {
+    fn: () => T | Promise<T>
+  ): Promise<[T, number]> => {
     Measure.startMeasurement()
-    await fn()
+    const result = await fn()
     Measure.endMeasurement()
     Measure.calculateTime()
 
     if (Measure.period > 250) {
       console.warn(`The task ${label} takes ${Measure.period}ms`)
     }
+
+    return [result, Measure.period]
   }
 }
 
