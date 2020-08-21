@@ -1,10 +1,11 @@
 {
   "name": "shuvi",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "version": "0.1.0",
+  "main": "build/index.js",
+  "license": "AGPLv3",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node build/index.js",
+    "dev": "ts-node src/index.ts",
     "build": "tsc"
   },
   "dependencies": {
