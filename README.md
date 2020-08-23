@@ -44,12 +44,24 @@ $ npm run start
     * (**Recommended Version:** Node.js v12)
   * NPM (Automatically installed with Node.js)
 
-## How To Contribute
+### Tests
+To run the test suite, first install the dependencies, the run below script:
+```bash
+$ npm install
+$ npm test
+```
+
+## Community
+  * Join [Official Discord Server]() for support and discussion
+  * Visit the [Wiki](./wiki)
+
+### How To Contribute
 Contributions are always welcome, either reporting issues/bugs or forking the repository and then issuing pull requests when you have completed some additional coding that you feel will be beneficial to the main project. If you are interested in contributing in a more dedicated capacity, then please check out Contributing.md.
 
   * [Code of Conduct](./docs/CodeOfConduct.md)
   * Issues
     * Asking for general help
+    * Security Policies and Procedures
   * Pull request
     * Setting up your local environment
     * Making changes
