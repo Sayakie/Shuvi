@@ -27,7 +27,7 @@ class Application {
 
   private client!: ShuviClient
   private cache = new Collection<number, number>()
-  public readonly setup = async (): Promise<void> => {
+  public readonly bootstrap = async (): Promise<void> => {
     this.client = new Client({
       messageCacheMaxSize: 1 << 7,
       messageCacheLifetime: 1 << 13,
