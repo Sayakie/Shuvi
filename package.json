@@ -9,7 +9,7 @@
   "main": "build/index.js",
   "engines": {
     "node": ">= 10"
-  }
+  },
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node src/index.ts",
