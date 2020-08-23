@@ -1,8 +1,15 @@
 {
   "name": "shuvi",
+  "description": "A flexible, compatible discord bot written with TypeScript.",
   "version": "0.1.0",
-  "main": "build/index.js",
+  "author": "Sayakie <sayakie.ovo@gmail.com>",
+  "contributors": [],
   "license": "AGPL-3.0",
+  "repository": "Sayakie/Shuvi",
+  "main": "build/index.js",
+  "engines": {
+    "node": ">= 10"
+  }
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node src/index.ts",
