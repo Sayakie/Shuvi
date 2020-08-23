@@ -1,3 +1,6 @@
+> **Before read/install/clone this project** <br />
+> Shuvi is still in development and unstable. Specification or structures in sources can change and/or may vary at any time.
+
 # Shuvi
 
 [![License](https://img.shields.io/badge/Licence-AGPLv3-blue.svg)](https://github.com/Sayakie/Shuvi/blob/master/LICENSE)
