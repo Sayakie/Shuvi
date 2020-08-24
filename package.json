@@ -2,13 +2,24 @@
   "name": "shuvi",
   "description": "A flexible, compatible discord bot written with TypeScript.",
   "version": "0.1.0",
-  "author": "Sayakie <sayakie.ovo@gmail.com>",
-  "contributors": [],
+  "author": "Sayakie <sayakie.ovo@gmail.com> (https://sayakie.com/)",
   "license": "AGPL-3.0",
-  "repository": "Sayakie/Shuvi",
+  "os": ["!win32"],
   "main": "build/index.js",
   "engines": {
     "node": ">= 10"
+  },
+  "private": true,
+  "repository": "github:Sayakie/Shuvi",
+  "homepage": "https://github.com/Sayakie/Shuvi#README",
+  "directories": {
+    "bin": "./build/index.js",
+    "doc": "./docs",
+    "test": "./test"
+  },
+  "bugs": {
+    "url": "https://github.com/Sayakie/Shuvi/issues",
+    "email": "sayakie.ovo@gmail.com"
   },
   "scripts": {
     "start": "node build/index.js",
@@ -31,5 +42,5 @@
     "prettier": "^2.0.5",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
-  }
+  },
 }
