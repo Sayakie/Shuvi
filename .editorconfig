@@ -3,10 +3,6 @@ root = true
 [*.md]
 trim_trailing_whitespace = false
 
-[{*.json}]
-indent_style = space
-indent_size = 2
-
 [{src,script}/**.{ts,json,js}]
 end_of_line = lf
 charset = utf-8
