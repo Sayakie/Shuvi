@@ -1,0 +1,4 @@
+{
+  "APP_NEEDS_INITIALIZATION": "Application may not initialised. You must use #bootstrap to initialise the application.",
+  "APP_CONSTRUCTED_ALREADY": "Application already constructed."
+}
