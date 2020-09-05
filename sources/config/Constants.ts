@@ -21,6 +21,10 @@ export const EVENT = Object.assign({}, DiscordEvents, {
   TASK_RELOAD: 'taskReload'
 })
 
+export const LOGGER = {
+  CORE: 'Core'
+}
+
 export const SYMBOL = {
   NOT_EXISTS: '',
   WHITESPACE: ' '

@@ -4,7 +4,7 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json",
-    "ecmaVersion": 2019,
+    "ecmaVersion": 11,
     "sourceType": "module"
   },
   "plugins": ["prettier", "no-loops"],
@@ -19,7 +19,14 @@
   "rules": {
     "no-loops/no-loops": "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/restrict-template-expressions": [
+      "warn",
+      {
+        "allowAny": true
+      }
+    ],
     "semi": "off"
   },
   "overrides": [

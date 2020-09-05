@@ -4,19 +4,13 @@
   "version": "0.1.0",
   "author": "Sayakie <sayakie.ovo@gmail.com> (https://sayakie.com/)",
   "license": "AGPL-3.0",
-  "os": ["!win32"],
   "main": "build/index.js",
   "engines": {
-    "node": ">= 10"
+    "node": ">= 12.x"
   },
   "private": true,
   "repository": "github:Sayakie/Shuvi",
   "homepage": "https://github.com/Sayakie/Shuvi#README",
-  "directories": {
-    "bin": "./build/index.js",
-    "doc": "./docs",
-    "test": "./test"
-  },
   "bugs": {
     "url": "https://github.com/Sayakie/Shuvi/issues",
     "email": "sayakie.ovo@gmail.com"
@@ -24,12 +18,15 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint --color --ext .ts,.js \"sources/\"",
+    "lint:fix": "eslint \"sources/**/*.+(ts|js)\" --fix"
   },
   "dependencies": {
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
-    "walk-sync": "^2.2.0"
+    "walk-sync": "^2.2.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/node": "^14.0.27",
@@ -43,4 +40,8 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.1",
+    "libsodium-wrappers": "^0.7.8"
+  }
 }

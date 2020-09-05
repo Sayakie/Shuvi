@@ -1,23 +1,23 @@
 import { Client as DiscordClient, Collection } from 'discord.js'
-import { Command } from '../structures/Command'
+import type { Module } from '../structures/Module'
 import type { ClientOptions } from 'discord.js'
 
 export class Client extends DiscordClient {
-  private commands: Collection<string, Command>
+  #modules: Collection<string, Module>
+  #aliases: Map<string, Module>
 
   constructor(options?: ClientOptions) {
     super(options)
 
-    this.commands = new Collection<string, Command>()
-    this.fetchCommands()
-    this.attachEvent()
+    this.#modules = new Collection<string, Module>()
+    this.#aliases = new Map<string, Module>()
   }
 
-  private fetchCommands(): void {
-    // TODO
+  public get modules(): Collection<string, Module> {
+    return this.#modules
   }
 
-  private attachEvent(): void {
-    // TODO
+  public get aliases(): Map<string, Module> {
+    return this.#aliases
   }
 }

@@ -4,11 +4,16 @@ import { Task } from '../structures/Task'
 import type { TaskOptions } from '../types'
 
 export class TaskManager extends BaseManager {
-  private tasks: Map<string, Task>
+  #tasks: Map<string, Task>
+
+  public get tasks(): Map<string, Task> {
+    return this.#tasks
+  }
+
   constructor() {
     super()
 
-    this.tasks = new Map<string, Task>()
+    this.#tasks = new Map<string, Task>()
   }
 
   public async create(taskOptions?: TaskOptions): Promise<Task> {
