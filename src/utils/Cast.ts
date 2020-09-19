@@ -58,5 +58,6 @@ export const cast = <
         `Expected ${key} but not found. Pass [Key {${key}}] into .env file or type "cross-env ${key}=value" in cli.`
       )
     else return defaultValue
+  // eslint-disable-next-lint @typescript-eslint/no-unnecessary-type-assertion
   else return typeConverter[type](value!) as P
 }
