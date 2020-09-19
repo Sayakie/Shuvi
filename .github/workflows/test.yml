@@ -1,20 +1,6 @@
 name: Test
 on: [push, pull_request]
 jobs:
-  Webhook:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-ruby@v1
-      - name: Send Webhook notification
-        if: always()
-        env:
-          JOB_STATUS: ${{ job.status }}
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          HOOKS_OS_NAME: ${{ runner.os }}
-          WORKFLOW_NAME: ${{ github.workflow }}
-        run: |
-          bash scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
-        shell: bash
   Lint:
     runs-on: ubuntu-latest
     strategy:
