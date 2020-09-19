@@ -3,12 +3,16 @@ on: [push, pull_request]
 jobs:
   Lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x]
     steps:
       - uses: actions/checkout@master
-      - name: Use Node.JS 12.x
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: 12.16
+          node-version: ${{ matrix.node-version }}
+      - run: npm install -g yarn
       - name: Cache node modules
         uses: actions/cache@v2
         with:
@@ -18,5 +22,5 @@ jobs:
             ${{ runner.os }}
       - name: Lint
         run: |
-          npm install
-          npm run lint
+          yarn install
+          yarn lint
