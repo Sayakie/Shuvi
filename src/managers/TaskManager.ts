@@ -1,13 +1,10 @@
-import { BaseManager } from './BaseManager'
 import { Task } from '../structs/Task'
 import type { TaskOptions, Timestamp } from '../types'
 
-export class TaskManager extends BaseManager {
+export class TaskManager {
   #tasks: Map<string, Task>
 
   constructor() {
-    super()
-
     this.#tasks = new Map<string, Task>()
   }
 
@@ -34,7 +31,10 @@ export class TaskManager extends BaseManager {
   }
 
   clear(): void {
-    this.destroy()
     this.#tasks.clear()
+  }
+
+  toString(): string {
+    return `TaskManager {size=${this.size}}`
   }
 }
