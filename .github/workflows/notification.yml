@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   Webhook:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
       - uses: actions/setup-ruby@v1
       - name: Send Webhook notification
@@ -12,6 +13,4 @@ jobs:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           HOOKS_OS_NAME: ${{ runner.os }}
           WORKFLOW_NAME: ${{ github.workflow }}
-        run: |
-          ls
-          bash ./scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
+        run: bash ~/scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
