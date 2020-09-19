@@ -15,5 +15,5 @@ jobs:
         shell: bash
         working-directory: scripts
         run: |
-          chmod +x DISCORD_WEBHOOK.sh
+          ls -l
           bash DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
