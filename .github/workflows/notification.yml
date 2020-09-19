@@ -13,5 +13,6 @@ jobs:
           HOOKS_OS_NAME: ${{ runner.os }}
           WORKFLOW_NAME: ${{ github.workflow }}
         run: |
-          bash scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
+          chmod +x ./scripts/DISCORD_WEBHOOK.sh
+          bash ./scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
         shell: bash
