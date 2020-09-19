@@ -147,3 +147,9 @@ $RECYCLE.BIN/
 /*[.ts,.js]
 
 # End of https://www.gitignore.io/api/node,windows,visualstudiocode
+
+data/
+src2/
+src3/
+src4/
+src5/

@@ -1,14 +1,40 @@
-import { Application } from './App'
-import { Config } from './config'
+import { debug as debugWrapper } from 'debug'
+import { inspect } from 'util'
+import { Config } from './bootstrap/Config'
+import { ShardManager } from './bootstrap/ShardManager'
+import { EVENT } from './helpers/Constants'
 
-Config.loadFromFile(`${process.cwd()}/.env`)
-Config.applyToProcess()
+const debug = debugWrapper('Shuvi')
 
 process.on('SIGINT', () => {
-  Application.getInstance().getClient().destroy()
+  shardManager.shards.each(shard => {
+    shard.kill()
+    debug('Kill all shards.')
+  })
 })
 
-process.on('unhandledRejection', console.error)
-process.on('uncaughtException', console.error)
+process.on('SIGHUP', () => {
+  shardManager.shards.forEach(shard => {
+    shard.emit('SIGINT')
+    debug('Kill all shards before nodemon restart the master.')
+  })
+})
 
-void (async () => await Application.getInstance().bootstrap())()
+await Config.parse()
+
+const shardManager = new ShardManager()
+shardManager.on(EVENT.SHARD_CREATE, shard => {
+  debug(`[Shard ${shard.id}] Shard was created!`)
+  shard.on(EVENT.ERROR, console.error)
+  shard.on(EVENT.CLIENT_READY, () => debug(`[Shard ${shard.id}] Shard is ready.`))
+  shard.on(EVENT.MESSAGE_CREATE, data =>
+    console.log(`Received ${inspect(data, undefined, 2, true)}`)
+  )
+  shard.on(EVENT.SHARD_DEATH, process =>
+    debug(
+      `[Shard ${shard.id}] Shard process was dead. {exitCode: ${process.exitCode || 'no provided'}}`
+    )
+  )
+})
+
+await shardManager.spawn()

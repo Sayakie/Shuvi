@@ -3,6 +3,14 @@
 
 # Shuvi
 
+<table style="width: 100%; border-style: none;"><tr>
+<td style="width: 140px; text-align: center;"><a href="https://aka.ms/vscode-remote/download/extension"><img width="128px" src="https://microsoft.github.io/vscode-remote-release/images/remote-extensionpack.png" alt="Visual Studio Code logo"/></a></td>
+<td>
+<strong>Visual Studio Code Remote Development and GitHub Codespaces</strong><br />
+<i>Open your code in the cloud, in a local container, on a remote machine, or in WSL and take advantage of VS Code's full feature set.
+</td>
+</tr></table>
+
 [![License](https://img.shields.io/badge/Licence-AGPLv3-blue.svg)](https://github.com/Sayakie/Shuvi/blob/master/LICENSE)
 
 Shuvi is a discord bot using Node.js with TypeScript. The code is built on ECMAScript 2020 and can be transpiled to JavaScript with TypeScript 4.0. Shuvi not only based on Discord.js v12 library, but it also used common modules.

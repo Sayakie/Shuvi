@@ -10,6 +10,7 @@
   "plugins": ["prettier", "no-loops"],
   "extends": [
     "eslint:recommended",
+    "google",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
@@ -18,6 +19,7 @@
   ],
   "rules": {
     "no-loops/no-loops": "warn",
+    "require-jsdoc": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/ban-ts-comment": "off",
