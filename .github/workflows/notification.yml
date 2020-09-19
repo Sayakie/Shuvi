@@ -12,7 +12,8 @@ jobs:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           HOOKS_OS_NAME: ${{ runner.os }}
           WORKFLOW_NAME: ${{ github.workflow }}
-        run: |
-          chmod +x ./scripts/DISCORD_WEBHOOK.sh
-          bash ./scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
         shell: bash
+        working-directories: scripts
+        run: |
+          chmod +x DISCORD_WEBHOOK.sh
+          bash DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
