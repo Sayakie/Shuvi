@@ -30,11 +30,9 @@
     "prebuild": "del-cli --force ./build",
     "build": "tsc --project tsconfig.json",
     "lint": "eslint --color --ext .ts,.js \"src/\"",
-    "lint:fix": "eslint \"src/**/*.+(ts|js)\" --fix",
-    "local": "node --experimental-modules --es-module-specifier-resolution=node local/JirachiLover.js"
+    "lint:fix": "yarn lint --fix"
   },
   "dependencies": {
-    "better-sqlite3": "^7.1.0",
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",
     "discord.js": "^12.2.0",
@@ -61,6 +59,7 @@
     "typescript": "^3.9.7"
   },
   "optionalDependencies": {
+    "better-sqlite3": "^7.1.1",
     "bufferutil": "^4.0.1",
     "libsodium-wrappers": "^0.7.8"
   }

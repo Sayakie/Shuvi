@@ -22,5 +22,5 @@ jobs:
             ${{ runner.os }}
       - name: Lint
         run: |
-          yarn install
+          yarn install --ignore-optional
           yarn lint
