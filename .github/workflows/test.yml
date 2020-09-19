@@ -24,3 +24,12 @@ jobs:
         run: |
           yarn install --ignore-optional
           yarn lint
+      - uses: actions/setup-ruby@v1
+      - name: Send Webhook notification
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          HOOK_OS_NAME: ${{ runner.os }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+        run: bash ./scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL

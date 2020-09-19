@@ -6,7 +6,7 @@ fi
 
 echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
-AVATAR = "https://github.com/actions.png"
+AVATAR = "https://avatars0.githubusercontent.com/u/18323202?s=48&v=4"
 
 case $1 in
   "success" )
@@ -78,12 +78,12 @@ fi
 
 TIMESTAMP=$(date --utc +%FT%TZ)
 WEBHOOK_DATA='{
-  "username": "",
+  "username": "Shuvi CI - Test & Lint",
   "avatar_url": "'$AVATAR'",
-  "embeds": [ {
+  "embeds": [{
     "color": '$EMBED_COLOR',
     "author": {
-      "name": "'"$STATUS_MESSAGE"': '"$WORKFLOW_NAME"' ('"${HOOK_OS_NAME}"') - '"$GITHUB_REPOSITORY"'",
+      "name": "'"$STATUS_MESSAGE"': '"$GITHUB_REPOSITORY"' (OS Container: '"${HOOK_OS_NAME}"'),
       "url": "'"$ACTION_URL"'",
       "icon_url": "'$AVATAR'"
     },
@@ -103,7 +103,7 @@ WEBHOOK_DATA='{
       }
     ],
     "timestamp": "'"$TIMESTAMP"'"
-  } ]
+  }]
 }'
 
 (curl --fail --progress-bar -A "GitHub-Actions-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "${WEBHOOK_DATA//	/ }" "$2" \
