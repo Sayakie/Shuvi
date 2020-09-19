@@ -27,6 +27,7 @@ jobs:
   Notification:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@master
       - uses: actions/setup-ruby@v1
       - name: Send Webhook notification
         if: always()
