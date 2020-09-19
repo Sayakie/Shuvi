@@ -11,16 +11,4 @@ jobs:
           node_version: 14.2
       - name: Lint
         run: |
-          npm run pretest
           npm run lint
-  Test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Use Node.JS 14.x
-        uses: actions/setup-node@v1
-        with:
-          node_version: 14.2
-      - name: Jest
-        run: |
-          npm test
