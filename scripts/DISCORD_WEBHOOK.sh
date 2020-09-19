@@ -80,7 +80,7 @@ TIMESTAMP=$(date --utc +%FT%TZ)
 WEBHOOK_DATA='{
   "username": "Shuvi CI - Test & Lint",
   "avatar_url": "'$AVATAR'",
-  "embeds": [{
+  "embeds": [ {
     "color": '$EMBED_COLOR',
     "author": {
       "name": "'"$STATUS_MESSAGE"': '"$GITHUB_REPOSITORY"' (OS Container: '"${HOOK_OS_NAME}"'),
@@ -103,7 +103,7 @@ WEBHOOK_DATA='{
       }
     ],
     "timestamp": "'"$TIMESTAMP"'"
-  }]
+  } ]
 }'
 
 (curl --fail --progress-bar -A "GitHub-Actions-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "${WEBHOOK_DATA//	/ }" "$2" \
