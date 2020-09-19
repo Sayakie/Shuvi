@@ -24,6 +24,9 @@ jobs:
         run: |
           yarn install --ignore-optional
           yarn lint
+  Notification:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/setup-ruby@v1
       - name: Send Webhook notification
         if: always()

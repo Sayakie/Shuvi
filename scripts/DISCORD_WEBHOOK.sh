@@ -6,7 +6,7 @@ fi
 
 echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
-AVATAR = "https://avatars0.githubusercontent.com/u/18323202?s=48&v=4"
+AVATAR="https://avatars0.githubusercontent.com/u/18323202?s=48&v=4"
 
 case $1 in
   "success" )
