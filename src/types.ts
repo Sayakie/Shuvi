@@ -1,6 +1,7 @@
 import type { ShardingManager } from 'discord.js'
 import type Enmap from 'enmap'
-import type { Client } from './Shuvi'
+import type { LoggerOptions as WinstonLoggerOptions } from 'winston'
+import type { Client } from './Client'
 import type { Module } from './structs/Module'
 
 export type Opaque<K, T> = K & { __TYPE__: T }
@@ -28,6 +29,9 @@ export type ModuleOptions = {
   client: Client
 }
 export type ModuleEntry = {
+  default: new (options: ModuleOptions) => Module
+}
+export type PluginEntry = {
   default: (options: ModuleOptions) => Module | Promise<Module>
 }
 export type DataID = Opaque<string, 'DataTable'>
@@ -43,6 +47,8 @@ export type TaskOptions = {
   description?: string
   timeout: Timestamp
 }
+export type LoggerLevel = 'info' | 'warn' | 'error' | 'crit' | 'fatal'
+export type LoggerOptions = WinstonLoggerOptions & { name?: string; level?: LoggerLevel }
 
 export type ProcessEnvProperty = {
   NODE_ENV: 'development' | 'production' | 'debug' | 'test'
@@ -57,4 +63,6 @@ export type ProcessEnvProperty = {
   CLIENT_ACTIVITY_NAME: string
   CLIENT_ACTIVITY_TYPE: string
   CLIENT_ACTIVITY_URL: string
+
+  OWNERS: string[]
 }

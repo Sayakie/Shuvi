@@ -1,9 +1,16 @@
 import { Category } from './Category'
-import type { Message } from 'discord.js'
-import type { Client } from '../Shuvi'
+import type { Message, PermissionString } from 'discord.js'
+import type { Client } from '../Client'
 import type { ModuleOptions } from '../types'
+import { cast } from '../utils'
 
 type NullableString = string | undefined
+
+const dummyModule = {
+  run(): void {
+    /** do nothing */
+  }
+}
 
 export abstract class Module {
   readonly active: boolean = false
@@ -13,8 +20,8 @@ export abstract class Module {
   details: NullableString = 'No details provided.'
   usage: NullableString = 'No usage provided.'
   category: Category = Category.Uncategorized
-  botPermissions: number[] = []
-  userPermissions: number[] = []
+  botPermissions: PermissionString[] = []
+  userPermissions: PermissionString[] = []
 
   protected client: Client
   protected message!: Message
@@ -65,9 +72,29 @@ export abstract class Module {
     this.#hidden = true
   }
 
-  inject(message: Message, args: string[]): this {
+  inject(message: Message, args: string[]): this | typeof dummyModule {
     this.message = message
     this.args = args
+
+    // Validate compare of the module that is owner only from author match.
+    if (this.isOwnerOnly || this.category === Category.Owner) {
+      if (!cast('OWNERS', 'object', ['']).includes(this.message.author.tag)) return dummyModule
+    }
+
+    if (this.message.guild) {
+      if (!this.message.member!.hasPermission(this.userPermissions)) {
+        this.message.channel.send('권한 없음!')
+        return dummyModule
+      }
+
+      if (!this.message.guild.me!.hasPermission(this.botPermissions)) {
+        this.message.channel.send('나 권한 없음!')
+        return dummyModule
+      }
+
+      // @ts-ignore
+      if (!this.message.channel.nsfw && this.isNsfwOnly) return dummyModule
+    }
 
     return this
   }

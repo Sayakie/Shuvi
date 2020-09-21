@@ -41,7 +41,7 @@ export const PATTERN = {
   MENTION_USER_NICKNAME: /<@!(?<id>\d+)>/i,
   MENTION_CHANNEL: /<#(?<id>\d+)>/i,
   MENTION_ROLE: /<@&(?<id>\d+)>/i,
-  EMOJI: /<(?<animation>a)?:(?<name>.+):(?<id>.+):>/i,
+  EMOJI: /<(?<animation>a)?:(?<name>.+):(?<id>.+):?>/i,
   CUSTOM_EMOJI: /<:(?<name>.+):(?<id>.+)>/i,
   ANIMATED_EMOJI: /<a:(?<name>.+):(?<id>.+)>/i,
   WHITESPACE: /\s+/g,

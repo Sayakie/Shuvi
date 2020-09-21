@@ -4,15 +4,17 @@ import { Category } from '../../structs/Category'
 import { Module } from '../../structs/Module'
 import type { ModuleOptions } from '../../types'
 
-export class Evaluate extends Module {
+export class Update extends Module {
   public name: string
 
   constructor({ client }: ModuleOptions) {
     super({ client })
 
-    this.name = 'Evaluate'
-    this.aliases = ['eval']
-    this.description = 'Evaluates a script from provided, otherwise, fetch from storage.'
+    this.name = 'Update'
+    this.aliases = ['upgrade']
+    this.description = 'up to date from repository'
+    this.details =
+      'Compares local version with remote version, downloads and ups to date from if did not match.'
     this.category = Category.Owner
     this.ownerOnly()
     this.hide()
@@ -23,7 +25,7 @@ export class Evaluate extends Module {
 
     let result: unknown
     try {
-      const evalInContext = (): unknown => eval.call(this.client, code)
+      const evalInContext = (): unknown => eval(code)
       // result = eval.bind({ ...this.client })(code)
       result = evalInContext.call(this.client)
     } catch (error) {
@@ -39,4 +41,4 @@ export class Evaluate extends Module {
   }
 }
 
-export default Evaluate
+export default Update

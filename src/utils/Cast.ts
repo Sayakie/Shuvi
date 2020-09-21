@@ -30,15 +30,18 @@ const toBoolean = (value: string): boolean => {
 
 const toString = (value: string): string => value
 
+const toObject = (value: string): string[] => value.trim().split(',')
+
 const typeConverter = {
   number: toNumber,
   string: toString,
-  boolean: toBoolean
+  boolean: toBoolean,
+  object: toObject
 }
 
-type CastType = 'string' | 'number' | 'boolean'
+type CastType = 'string' | 'number' | 'boolean' | 'object'
 type PrimitiveType<T> = T extends CastType
-  ? { string: string; number: number; boolean: boolean }[T]
+  ? { string: string; number: number; boolean: boolean; object: string[] }[T]
   : never
 
 export const cast = <

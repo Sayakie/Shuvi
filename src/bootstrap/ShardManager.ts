@@ -23,6 +23,7 @@ export class ShardManager extends ShardingManager {
       ...{
         file: `${join($main, `Shuvi.${extension}`)}`,
         totalShards: 1,
+        mode: 'process',
         execArgv
       },
       ...mutableOptions

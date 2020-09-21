@@ -28,4 +28,8 @@ export class DataManager {
 
     return data
   }
+
+  toString(): string {
+    return `DataManager {size=${this.#data.size}}`
+  }
 }
