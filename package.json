@@ -26,7 +26,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node --experimental-modules --es-module-specifier-resolution=node build/index.js",
     "dev": "cross-env NODE_ENV=development ESM_DISABLE_CACHE=true TS_NODE_PROJECT=tsconfig.json node --experimental-modules --es-module-specifier-resolution=node -r esm -r ts-node/register src/index.ts",
-    "dev:watch": "nodemon --watch src/ --ext .ts --ignore tests/ --signal SIGHUP --exec yarn dev",
+    "dev:watch": "nodemon --watch src --ext .ts --ignore tests/ --ignore **.*.test.ts --ignore **.*.spec.ts --delay 2 --signal SIGHUP --exec yarn dev",
     "prebuild": "del-cli --force ./build",
     "build": "tsc --project tsconfig.json",
     "lint": "eslint --color --ext .ts,.js \"src/\"",
@@ -35,7 +35,7 @@
   "dependencies": {
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",
-    "discord.js": "^12.2.0",
+    "discord.js": "discordjs/discord.js#1e63f37",
     "dotenv": "^8.2.0",
     "enmap": "^5.7.1",
     "esm": "^3.2.25",

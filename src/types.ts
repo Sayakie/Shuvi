@@ -2,6 +2,7 @@ import type { ShardingManager } from 'discord.js'
 import type Enmap from 'enmap'
 import type { LoggerOptions as WinstonLoggerOptions } from 'winston'
 import type { Client } from './Client'
+import type { GiveawayManager } from './managers/GiveawayManager'
 import type { Module } from './structs/Module'
 
 export type Opaque<K, T> = K & { __TYPE__: T }
@@ -46,6 +47,20 @@ export type TaskOptions = {
   name?: TaskUniqueName
   description?: string
   timeout: Timestamp
+}
+export type GiveawayOptions = {
+  client: Client
+  manager: GiveawayManager
+}
+export type GiveawayManagerOptions = {
+  startsAt?: number
+  endsAt?: number
+  enbed?: boolean
+  prize?: string
+  channelID?: Snowflake
+  guildID?: Snowflake
+  winnerCount?: number
+  hostedBy?: string
 }
 export type LoggerLevel = 'info' | 'warn' | 'error' | 'crit' | 'fatal'
 export type LoggerOptions = WinstonLoggerOptions & { name?: string; level?: LoggerLevel }

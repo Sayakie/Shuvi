@@ -81,6 +81,14 @@ export abstract class Module {
       if (!cast('OWNERS', 'object', ['']).includes(this.message.author.tag)) return dummyModule
     }
 
+    if (this.isGuildOnly && !this.message.guild) {
+      this.message.channel.send('길드 전용!')
+      return dummyModule
+    }
+
+    // @ts-ignore
+    if (this.isNsfwOnly && !this.message.channel.nsfw) return dummyModule
+
     if (this.message.guild) {
       if (!this.message.member!.hasPermission(this.userPermissions)) {
         this.message.channel.send('권한 없음!')
@@ -91,15 +99,12 @@ export abstract class Module {
         this.message.channel.send('나 권한 없음!')
         return dummyModule
       }
-
-      // @ts-ignore
-      if (!this.message.channel.nsfw && this.isNsfwOnly) return dummyModule
     }
 
     return this
   }
 
-  run<T>(): T | Promise<T> | Promise<void> {
+  run<T>(): T | Promise<T> | void | Promise<void> {
     throw new Error(`${this.toString()} did not set up a run() method.`)
   }
 

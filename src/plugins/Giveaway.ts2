@@ -1,10 +1,15 @@
+import { BaseClient } from 'discord.js'
+import type { Client } from '../Client'
+import type { GiveawayOptions } from '../types'
 
-import { EVENT } from '../helpers/Constants'
-import type { ModuleOptions } from '../types'
+class Giveaway extends BaseClient {
+  client: Client
+  manager: GiveawayManager
 
-export default ( { client }: ModuleOptions ): void => {
-  client.incrementMaxListener()
-  client.on(EVENT.MESSAGE_CREATE, message => {
-ASD
-  })
+  constructor({ client, manager, options }: GiveawayOptions) {
+    super()
+
+    this.client = client
+    this.manager = manager
+  }
 }

@@ -85,7 +85,7 @@ WEBHOOK_DATA='{
     "author": {
       "name": "'"$STATUS_MESSAGE"': '"$GITHUB_REPOSITORY"' (OS Container: '"${HOOK_OS_NAME}"'),
       "url": "'"$ACTION_URL"'",
-      "icon_url": "'$AVATAR'"
+      "icon_url": "'"$AVATAR"'"
     },
     "title": "'"$COMMIT_SUBJECT"'",
     "url": "'"$COMMIT_OR_PR_URL"'",

@@ -1,8 +1,9 @@
 import { debug as debugWrapper } from 'debug'
-import { Client as DiscordClient, Collection, Constants } from 'discord.js'
+import { Client as DiscordClient, Collection, Constants, Intents } from 'discord.js'
 import walkSync from 'walk-sync'
 import { EVENT } from './helpers/Constants'
 import { $main } from './helpers/Path'
+import { AudioManager } from './managers/AudioManager'
 import { DataManager } from './managers/DataManager'
 import { TaskManager } from './managers/TaskManager'
 import { check, cast } from './utils'
@@ -10,27 +11,41 @@ import type { ActivityType, ClientOptions, PresenceStatusData, Message } from 'd
 import type Enmap from 'enmap'
 import type { Module } from './structs/Module'
 import type { DataID, GuildOptions, ModuleEntry, PluginEntry } from './types'
+import { inspect } from 'util'
 
 const debug = debugWrapper('Shuvi:Client')
-
-process.once('SIGINT', () => {
-  client.destroy()
-  debug('Received kill instance.')
-})
+;['SIGINT', 'SIGHUP'].forEach(SIGNAL =>
+  process.once(SIGNAL as NodeJS.Signals, () => {
+    /** handles that signal and do nothing */
+  })
+)
 
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)
 
 const { SHUVI_LAZY_INITIALISE } = process.env
 const { PartialTypes } = Constants
+const IntentTypes = Intents.FLAGS
 
 /** Shuvi client instance. */
 let client: Client
 
+const guildSettings: GuildOptions = {
+  commandPrefix: cast('DISCORD_PREFIX', 'string', '!!'),
+  ignoreBot: cast('IGNORE_BOT', 'boolean', true)
+}
+
+const walkSyncOptions: Parameters<typeof walkSync>[1] = {
+  includeBasePath: true,
+  directories: false,
+  globs: ['**/*.+(ts|js)'],
+  ignore: ['test/**/*', '*.__test__.+(ts|js)', '*.test.+(ts|js)']
+}
+
 /**
  * Shuvi core, the main starting point of bot.
  * It extends Discord.js core client so that
- * allows more flexible design to do.
+ * allows more flexible design to do actions.
  *
  * @private
  * @hideconstructor
@@ -46,14 +61,11 @@ export class Client extends DiscordClient {
   #modules: Collection<string, Module>
   #aliases: Collection<string, Module>
 
+  #audioManager: AudioManager
   #dataManager: DataManager
   #taskManager: TaskManager
 
   settings: Enmap<string, GuildOptions>
-  defaultSettings: GuildOptions = {
-    commandPrefix: cast('DISCORD_PREFIX', 'string', '!!'),
-    ignoreBot: cast('IGNORE_BOT', 'boolean', true)
-  }
 
   private constructor(
     options: ClientOptions = {
@@ -68,7 +80,19 @@ export class Client extends DiscordClient {
           url: cast('CLIENT_ACTIVITY_URL', 'string', undefined)
         }
       },
-      partials: [PartialTypes.MESSAGE, PartialTypes.CHANNEL, PartialTypes.REACTION]
+      partials: [PartialTypes.MESSAGE, PartialTypes.CHANNEL, PartialTypes.REACTION],
+      ws: {
+        intents: new Intents().add(
+          IntentTypes.DIRECT_MESSAGE_REACTIONS,
+          IntentTypes.DIRECT_MESSAGE_TYPING,
+          IntentTypes.GUILD_MESSAGE_TYPING,
+          IntentTypes.GUILD_INVITES
+        )
+      },
+      disableMentions: 'everyone',
+      allowedMentions: {
+        parse: ['users']
+      }
     }
   ) {
     super(options)
@@ -78,6 +102,7 @@ export class Client extends DiscordClient {
 
     this.#modules = new Collection()
     this.#aliases = new Collection()
+    this.#audioManager = new AudioManager()
     this.#dataManager = new DataManager()
     this.#taskManager = new TaskManager()
     this.settings = this.#dataManager.create<GuildOptions>({ name: 'guilds' as DataID })
@@ -100,7 +125,7 @@ export class Client extends DiscordClient {
   static async initialise(options?: ClientOptions): Promise<Client> {
     return new Promise((resolve, reject) => {
       const cleanup = () => {
-        clearTimeout(instanceTimeout)
+        clearTimeout(clientTimeout)
         client.off(EVENT.CLIENT_READY, onReady)
       }
 
@@ -115,10 +140,14 @@ export class Client extends DiscordClient {
       }
 
       const TIMEOUT = cast('CLIENT_BOOT_TIMEOUT', 'number', 5500)
-      const instanceTimeout = setTimeout(onTimeout, TIMEOUT)
+      const clientTimeout = setTimeout(onTimeout, TIMEOUT)
       client = new Client(options)
       client.once(EVENT.CLIENT_READY, onReady)
     })
+  }
+
+  get audioManager(): AudioManager {
+    return check(this.#audioManager)
   }
 
   get dataManager(): DataManager {
@@ -161,12 +190,7 @@ export class Client extends DiscordClient {
 
   private async loadModules() {
     debug(`load client modules`)
-    const entries = walkSync(`${$main}/modules`, {
-      includeBasePath: true,
-      directories: false,
-      globs: ['**/*.+(ts|js)'],
-      ignore: ['test/**/*', '*.__test__.+(ts|js)', '*.test.+(ts|js)']
-    })
+    const entries = walkSync(`${$main}/modules`, walkSyncOptions)
 
     // eslint-disable-next-line no-loops/no-loops
     for (const Entry of entries) {
@@ -186,19 +210,14 @@ export class Client extends DiscordClient {
 
   private async loadPlugins() {
     debug(`load client plugins`)
-    const entries = walkSync(`${$main}/plugins`, {
-      includeBasePath: true,
-      directories: false,
-      globs: ['**/*.+(ts|js)'],
-      ignore: ['test/**/*', '*.__test__.+(ts|js)', '*.test.+(ts|js)']
-    })
+    const entries = walkSync(`${$main}/plugins`, walkSyncOptions)
 
     // eslint-disable-next-line no-loops/no-loops
     for (const Entry of entries) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const module: PluginEntry = await import(`${Entry}`)
+      const plugin: PluginEntry = await import(`${Entry}`)
 
-      await module.default({ client: this })
+      await plugin.default({ client: this })
     }
   }
 
@@ -206,25 +225,30 @@ export class Client extends DiscordClient {
     await message.author.send(message.cleanContent)
   }
 
-  async onCommand(message: Message): Promise<void> {
+  async onMessage(message: Message): Promise<void> {
+    // Prevents message incoming from Discord System
     if (message.system) return
+
+    // Handles message incoming from private like DMChannel
     if (!message.guild) {
       await this.onDirectMessage(message)
       return
     }
 
-    const guildConfig = this.settings.ensure(message.guild.id, this.defaultSettings)
+    const guildSetting = this.settings.ensure(message.guild.id, guildSettings)
 
+    // Prevents message that did not start with valid prefix
     if (
-      !message.cleanContent.startsWith(guildConfig.commandPrefix) ||
-      (guildConfig.ignoreBot && message.author.bot) ||
+      !message.cleanContent.startsWith(guildSetting.commandPrefix) ||
+      (guildSetting.ignoreBot && message.author.bot) ||
       message.author.equals(this.user!)
     )
       return
 
-    const args = message.cleanContent.slice(guildConfig.commandPrefix.length).trim().split(/\s+/g)
+    const args = message.cleanContent.slice(guildSetting.commandPrefix.length).trim().split(/\s+/g)
     const token = args.shift()!.toLowerCase()
 
+    // Enters into early return to do nothing that did not match any modules
     if (!(this.#modules.has(token) || this.#aliases.has(token))) {
       await message.author.send(`Could not found the command: ${token}`)
       return
@@ -241,20 +265,24 @@ export class Client extends DiscordClient {
   }
 
   bindEvents(): void {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    const { on } = this
-    on(EVENT.CLIENT_READY, () => {
-      this.guilds.cache.forEach(({ id }) => this.settings.ensure(id, this.defaultSettings))
+    this.on(EVENT.CLIENT_READY, () => {
+      this.guilds.cache.forEach(guild => {
+        this.settings.ensure(guild.id, guildSettings)
+      })
+      console.log(inspect(this.settings, undefined, 2, true))
     })
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    on(EVENT.MESSAGE_CREATE, message => this.onCommand(message))
-    on(EVENT.GUILD_DELETE, guild => {
+    this.on(EVENT.MESSAGE_CREATE, async message => await this.onMessage(message))
+    this.on(EVENT.GUILD_CREATE, guild => {
+      this.settings.ensure(guild.id, guildSettings)
+    })
+    this.on(EVENT.GUILD_DELETE, guild => {
       this.settings.delete(guild.id)
     })
   }
 
   toString(): string {
-    return `Shuvi {uptime=${this.uptime!}}`
+    return `Shuvi {modules=${this.#modules.size}, plugins=0, uptime=${this.uptime!}}`
   }
 }
 
@@ -267,7 +295,8 @@ const onConnect = (client: Client) => {
   if (client.shard) client.shard.send({ type: 'undefined', client })
 }
 const onFailed = (error: string) => {
-  throw new Error(error)
+  console.error(error)
+  process.kill(1)
 }
 
 void (async () => {

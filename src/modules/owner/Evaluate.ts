@@ -14,6 +14,7 @@ export class Evaluate extends Module {
     this.aliases = ['eval']
     this.description = 'Evaluates a script from provided, otherwise, fetch from storage.'
     this.category = Category.Owner
+    this.botPermissions = ['SEND_MESSAGES']
     this.ownerOnly()
     this.hide()
   }

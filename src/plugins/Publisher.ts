@@ -13,11 +13,11 @@ export default ({ client }: ModuleOptions): void => {
     if (!message.guild) return
     if (message.channel.type !== 'news') return
 
-    // @ts-ignore
     const {
       options: { http }
     } = client
     const { channel, guild } = message
+    // await message.crosspost()
 
     await fetch(
       `${http!.api!}/v${http!.version!}/channels/${channel.id}/messages/${message.id}/crosspost`,

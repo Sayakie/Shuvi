@@ -21,7 +21,7 @@ export class ShardManager extends ShardingManager {
     const extension = isDevelop ? 'ts' : 'js'
     const options: ShardManagerOptions = {
       ...{
-        file: `${join($main, `Shuvi.${extension}`)}`,
+        file: `${join($main, `Client.${extension}`)}`,
         totalShards: 1,
         mode: 'process',
         execArgv
