@@ -32,7 +32,7 @@ export const SYMBOL = {
   NOT_EXISTS: '',
   WHITESPACE: ' ',
   NEWLINE: '\n'
-}
+} as const
 
 export const PATTERN = {
   MENTION: /<(?:(?:@[!&]?)|#)(?<id>\d+)>/i,
