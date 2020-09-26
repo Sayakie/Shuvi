@@ -1,8 +1,8 @@
 import { Category } from './Category'
-import type { Message, PermissionString } from 'discord.js'
+import { cast } from '../utils'
+import type { Message, PermissionString, TextChannel } from 'discord.js'
 import type { Client } from '../Client'
 import type { ModuleOptions } from '../types'
-import { cast } from '../utils'
 
 type NullableString = string | undefined
 
@@ -78,7 +78,7 @@ export abstract class Module {
 
     // Validate compare of the module that is owner only from author match.
     if (this.isOwnerOnly || this.category === Category.Owner) {
-      if (!cast('OWNERS', 'object', ['']).includes(this.message.author.tag)) return dummyModule
+      if (!cast('OWNERS', 'object', ['']).includes(this.message.author.id)) return dummyModule
     }
 
     if (this.isGuildOnly && !this.message.guild) {
@@ -86,8 +86,7 @@ export abstract class Module {
       return dummyModule
     }
 
-    // @ts-ignore
-    if (this.isNsfwOnly && !this.message.channel.nsfw) return dummyModule
+    if (this.isNsfwOnly && !(this.message.channel as TextChannel).nsfw) return dummyModule
 
     if (this.message.guild) {
       if (!this.message.member!.hasPermission(this.userPermissions)) {
