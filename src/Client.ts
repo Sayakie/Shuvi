@@ -139,7 +139,7 @@ export class Client extends DiscordClient {
         reject(new Error('Client timed out.'))
       }
 
-      const TIMEOUT = cast('CLIENT_BOOT_TIMEOUT', 'number', 5500)
+      const TIMEOUT = cast('CLIENT_BOOT_TIMEOUT', 'number', 25600)
       const clientTimeout = setTimeout(onTimeout, TIMEOUT)
       client = new Client(options)
       client.once(EVENT.CLIENT_READY, onReady)
