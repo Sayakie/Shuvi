@@ -13,12 +13,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install -g yarn
+      - name: Get today
+        id: date
+        run: echo "::set-output name=date::$(date + '%d')"
       - name: Cache node modules
         uses: actions/cache@v2
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ stemps.date.outputs.date }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
+            ${{ runner.os }}-${{ stemps.date.outputs.date }}
             ${{ runner.os }}
       - name: Lint
         run: |
@@ -27,23 +31,33 @@ jobs:
   Notification:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify
+      - name: Notify succeed test
         uses: rjstone/discord-webhook-notify@v1
-        if: always()
+        if: success()
         with:
           webhookUrl: ${{ secrets.WEBHOOK_URL }}
           username: Shuvi Test & Lint
-          color: '#0099cc'
+          color: '#2ECC71'
           avatarUrl: https://avatars1.githubusercontent.com/u/18323202?s=128&v=4
-        if: success()
-        with:
           severity: info
           details: Test Succeeded!
+      - name: Notify failed test
+        uses: rjstone/discord-webhook-notify@v1
         if: failure()
         with:
+          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+          username: Shuvi Test & Lint
+          color: '#E74C3C'
+          avatarUrl: https://avatars1.githubusercontent.com/u/18323202?s=128&v=4
           severity: error
           details: Failed to test & lint!
+      - name: Notify cancelled test
+        uses: rjstone/discord-webhook-notify@v1
         if: cancelled()
         with:
+          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+          username: Shuvi Test & Lint
+          color: '#f1e903'
+          avatarUrl: https://avatars1.githubusercontent.com/u/18323202?s=128&v=4
           severity: warn
           details: Occured somethings blocked test or was cancelled!
