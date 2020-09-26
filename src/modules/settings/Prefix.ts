@@ -1,6 +1,6 @@
 import { Category } from '../../structs/Category'
 import { Module } from '../../structs/Module'
-import type { ModuleOptions } from '../../types'
+import type { GuildOptions, ModuleOptions } from '../../types'
 
 export class Prefix extends Module {
   public name: string
@@ -24,13 +24,15 @@ export class Prefix extends Module {
     } = this
     const { [0]: newPrefix, [1]: denyPrefix } = this.args
 
-    const prevPrefix = settings.get(guild!.id, 'commandPrefix')
+    const prevPrefix = (settings.get(
+      guild!.id,
+      'commandPrefix'
+    ) as unknown) as GuildOptions['commandPrefix']
     if (denyPrefix) {
       await message.reply('prefixes with spaces are not allowed!')
       return
     }
 
-    // @ts-ignore
     if (prevPrefix === newPrefix) {
       await channel.send('reset up completed')
       settings.delete(guild!.id)
