@@ -27,13 +27,23 @@ jobs:
   Notification:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-ruby@v1
-      - name: Send Webhook notification
+      - name: Notify
+        uses: rjstone/discord-webhook-notify@v1
         if: always()
-        env:
-          JOB_STATUS: ${{ job.status }}
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          HOOK_OS_NAME: ${{ runner.os }}
-          WORKFLOW_NAME: ${{ github.workflow }}
-        run: bash ./scripts/DISCORD_WEBHOOK.sh $JOB_STATUS $WEBHOOK_URL
+        with:
+          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+          username: Shuvi Test & Lint
+          color: '#0099cc'
+          avatarUrl: https://avatars1.githubusercontent.com/u/18323202?s=128&v=4
+        if: success()
+        with:
+          severity: info
+          details: Test Succeeded!
+        if: failure()
+        with:
+          severity: error
+          details: Failed to test & lint!
+        if: cancelled()
+        with:
+          severity: warn
+          details: Occured somethings blocked test or was cancelled!
