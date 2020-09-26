@@ -1,3 +1,4 @@
+import { SYMBOL } from '../helpers/Constants'
 /** @see {@link https://velog.io/@public_danuel/process-env-on-node-js|Node.js 기반에서 환경변수 사용하기} */
 
 import type { ProcessEnvProperty } from '../types'
@@ -30,7 +31,11 @@ const toBoolean = (value: string): boolean => {
 
 const toString = (value: string): string => value
 
-const toObject = (value: string): string[] => value.trim().split(',')
+const toObject = (value: string): string[] =>
+  value
+    .trim()
+    .replace(/\[|\]|\s+/g, SYMBOL.NOT_EXISTS)
+    .split(',')
 
 const typeConverter = {
   number: toNumber,
