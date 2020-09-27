@@ -20,9 +20,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-${{ stemps.date.outputs.date }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ steps.date.outputs.date }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ stemps.date.outputs.date }}
+            ${{ runner.os }}-${{ steps.date.outputs.date }}
             ${{ runner.os }}
       - name: Lint
         run: |
