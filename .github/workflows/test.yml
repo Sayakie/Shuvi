@@ -28,9 +28,6 @@ jobs:
         run: |
           yarn install --ignore-optional
           yarn lint
-  Notification:
-    runs-on: ubuntu-latest
-    steps:
       - name: Notify succeed test
         uses: rjstone/discord-webhook-notify@v1
         if: success()
