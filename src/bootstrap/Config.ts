@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
-import type { DotenvConfigOutput } from 'dotenv/types'
 import { $root } from '../helpers/Path'
+import type { DotenvConfigOutput } from 'dotenv/types'
 
 export class Config {
   private constructor() {
@@ -16,16 +16,14 @@ export class Config {
    * @static
    * @async
    * @param {string} [path]
-   * @return {Promise<DotenvConfigOutput | NodeJS.ReadOnlyDict<string>>}
+   * @return {Promise<DotenvConfigOutput>}
    */
-  static async parse(
-    path = `${$root}/.env`
-  ): Promise<DotenvConfigOutput | NodeJS.ReadOnlyDict<string>> {
+  static async parse(path = `${$root}/.env`): Promise<DotenvConfigOutput> {
     return new Promise((resolve, reject) => {
       const env = config({ path, encoding: 'utf-8' })
 
       if (env.error) reject(env.error)
-      else resolve(env.parsed)
+      else resolve(env.parsed as NonNullable<typeof env.parsed>)
     })
   }
 }

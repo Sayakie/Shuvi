@@ -1,6 +1,4 @@
 import { SYMBOL } from '../helpers/Constants'
-/** @see {@link https://velog.io/@public_danuel/process-env-on-node-js|Node.js 기반에서 환경변수 사용하기} */
-
 import type { ProcessEnvProperty } from '../types'
 
 const toNumber = (value: string): number => {
@@ -68,3 +66,5 @@ export const cast = <
     else return defaultValue
   else return typeConverter[type](value) as P
 }
+
+/** @see {@link https://velog.io/@public_danuel/process-env-on-node-js|Node.js 기반에서 환경변수 사용하기} */
