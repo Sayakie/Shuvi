@@ -34,6 +34,7 @@ const toObject = (value: string): string[] =>
     .trim()
     .replace(/\[|\]|\s+/g, SYMBOL.NOT_EXISTS)
     .split(',')
+    .filter(Boolean)
 
 const typeConverter = {
   number: toNumber,
