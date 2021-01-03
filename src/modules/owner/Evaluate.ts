@@ -24,9 +24,12 @@ export class Evaluate extends Module {
 
     let result: unknown
     try {
-      const evalInContext = (): unknown => eval.call(this.client, code)
-      // result = eval.bind({ ...this.client })(code)
-      result = evalInContext.call(this.client)
+      const evalInContext = () =>
+        function (code: string) {
+          return eval(code) as unknown
+        }.apply(this.client, [code])
+
+      result = evalInContext()
     } catch (error) {
       result = error
     }
