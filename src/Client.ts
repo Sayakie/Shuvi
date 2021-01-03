@@ -6,12 +6,13 @@ import { $main } from './helpers/Path'
 import { AudioManager } from './managers/AudioManager'
 import { DataManager } from './managers/DataManager'
 import { TaskManager } from './managers/TaskManager'
+import { ShardIsNotSetError } from './error/ShardIsNotSetError'
 import { check, cast } from './utils'
+import { inspect } from 'util'
 import type { ActivityType, ClientOptions, PresenceStatusData, Message } from 'discord.js'
 import type Enmap from 'enmap'
 import type { Module } from './structs/Module'
 import type { DataID, GuildOptions, ModuleEntry, PluginEntry } from './types'
-import { inspect } from 'util'
 
 const debug = debugWrapper('Shuvi:Client')
 ;['SIGINT', 'SIGHUP'].forEach(SIGNAL =>
@@ -97,8 +98,7 @@ export class Client extends DiscordClient {
   ) {
     super(options)
 
-    if (!this.shard)
-      throw new Error('"shard" is not set. Spawn with bootstrap/ShardManager#spawn().')
+    if (!this.shard) throw new ShardIsNotSetError()
 
     this.#modules = new Collection()
     this.#aliases = new Collection()
