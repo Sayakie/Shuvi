@@ -1,5 +1,5 @@
 import { debug as debugWrapper } from 'debug'
-import { Client as DiscordClient, Collection, Constants, Intents } from 'discord.js'
+import { Client as DiscordClient, Collection } from 'discord.js'
 import walkSync from 'walk-sync'
 import { EVENT } from './helpers/Constants'
 import { $main } from './helpers/Path'
@@ -24,9 +24,7 @@ const debug = debugWrapper('Shuvi:Client')
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)
 
-const { SHUVI_LAZY_INITIALISE } = process.env
-const { PartialTypes } = Constants
-const IntentTypes = Intents.FLAGS
+const { SHUVI_LAZY_INITIALISE, RUNTIME_MODE } = process.env
 
 /** Shuvi client instance. */
 let client: Client
@@ -80,19 +78,6 @@ export class Client extends DiscordClient {
           type: cast('CLIENT_ACTIVITY_TYPE', 'string', undefined as ActivityType | undefined),
           url: cast('CLIENT_ACTIVITY_URL', 'string', undefined)
         }
-      },
-      partials: [PartialTypes.MESSAGE, PartialTypes.CHANNEL, PartialTypes.REACTION],
-      ws: {
-        intents: new Intents().add(
-          IntentTypes.DIRECT_MESSAGE_REACTIONS,
-          IntentTypes.DIRECT_MESSAGE_TYPING,
-          IntentTypes.GUILD_MESSAGE_TYPING,
-          IntentTypes.GUILD_INVITES
-        )
-      },
-      disableMentions: 'everyone',
-      allowedMentions: {
-        parse: ['users']
       }
     }
   ) {
@@ -109,6 +94,7 @@ export class Client extends DiscordClient {
     this.settings.defer
     this.loadModules()
     this.loadPlugins()
+    RUNTIME_MODE === 'izuna-bot' && this.loadModules('izuna')
     this.bindEvents()
     this.login()
   }
@@ -188,9 +174,9 @@ export class Client extends DiscordClient {
     }
   }
 
-  private async loadModules() {
+  private async loadModules(directory = 'modules') {
     debug(`load client modules`)
-    const entries = walkSync(`${$main}/modules`, walkSyncOptions)
+    const entries = walkSync(`${$main}/${directory}`, walkSyncOptions)
 
     // eslint-disable-next-line no-loops/no-loops
     for (const Entry of entries) {
