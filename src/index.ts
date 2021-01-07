@@ -6,19 +6,13 @@ import { EVENT } from './helpers/Constants'
 
 const debug = debugWrapper('Shuvi')
 
-process.on('SIGINT', () => {
-  shardManager.shards.forEach(shard => {
-    debug('Kill all shards.')
-    shard.kill()
+;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach(signal => {
+  process.on(signal, () => {
+    debug('Destory all shards from shardManager.')
+    shardManager?.shards.forEach(shard => shard.kill())
   })
-})
 
-process.on('SIGHUP', () => {
-  shardManager.shards.forEach(shard => {
-    debug('Kill all shards before nodemon restart the master.')
-    shard.kill()
-  })
-  process.kill(0)
+  process.exit(0)
 })
 
 await Config.parse()
