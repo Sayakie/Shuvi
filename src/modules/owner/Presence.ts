@@ -10,7 +10,7 @@ export class Presence extends Module {
     super({ client })
 
     this.name = 'Presence'
-    this.aliases = ['setpresence']
+    this.aliases = ['setpresence', 'setstatus']
     this.description = ''
     this.category = Category.Owner
     this.ownerOnly()
