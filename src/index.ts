@@ -1,38 +1,56 @@
-import { debug as debugWrapper } from 'debug'
-import { inspect } from 'util'
-import { Config } from './bootstrap/Config'
-import { ShardManager } from './bootstrap/ShardManager'
-import { EVENT } from './helpers/Constants'
+Error.stackTraceLimit = 10
+process.on('uncaughtException', console.error)
+process.on('unhandledRejection', console.error)
 
-const debug = debugWrapper('Shuvi')
+import './bootloader/bootstrap'
+import { Config } from './bootloader/Config'
+await Config.parse()
 
+import chalk from 'chalk'
+import { ShardManager } from './sharding/ShardManager'
+import { core as debug } from './helpers/debugger'
+import { EVENT } from './shared/Constants'
 ;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach(signal => {
   process.on(signal, () => {
-    debug('Destory all shards from shardManager.')
-    shardManager?.shards.forEach(shard => shard.kill())
+    debug('Destroy all shards.')
+    shardManager.shards.forEach(shard => shard.kill())
   })
-
-  process.exit(0)
 })
-
-await Config.parse()
 
 const shardManager = new ShardManager()
 shardManager.on(EVENT.SHARD_CREATE, shard => {
-  debug(`[Shard ${shard.id}] Shard was created!`)
+  debug(
+    `${
+      chalk.white` [ ` +
+      chalk.cyanBright`Shard ${shard.id}` +
+      chalk.white` ] ` +
+      chalk.greenBright`Shard is created!`
+    }`
+  )
+
   shard.on(EVENT.ERROR, console.error)
-  shard.on(EVENT.CLIENT_READY, () => {
-    debug(`[Shard ${shard.id}] Shard is ready.`)
-    shard.worker = null
-  })
-  shard.on(EVENT.MESSAGE_CREATE, data =>
-    console.log(`Received ${inspect(data, undefined, 2, true)}`)
-  )
-  shard.on(EVENT.SHARD_DEATH, process =>
+  shard.on(EVENT.SHARD_READY, () => {
     debug(
-      `[Shard ${shard.id}] Shard process was dead. {exitCode: ${process.exitCode || 'no provided'}}`
+      `${
+        chalk.white` [ ` +
+        chalk.cyanBright`Shard ${shard.id}` +
+        chalk.white` ] ` +
+        chalk.greenBright`Shard is ready!`
+      }`
     )
-  )
+  })
+  shard.on(EVENT.SHARD_DEATH, process => {
+    if (process.exitCode === 0) return
+
+    debug(
+      `${
+        chalk.white` [ ` +
+        chalk.cyanBright`Shard ${shard.id}` +
+        chalk.white` ] ` +
+        chalk.redBright`Shard is dead suddenly. exitCode: ${process.exitCode || 'no provided'}`
+      }`
+    )
+  })
 })
 
 await shardManager.spawn()

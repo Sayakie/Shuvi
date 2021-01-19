@@ -1,3 +1,4 @@
+import { SYMBOL } from '../shared/Constants';
 const toNumber = (value) => {
     const result = Number(value);
     if (!(Number.isNaN(result) ||
@@ -14,8 +15,18 @@ const toBoolean = (value) => {
     }
     return false;
 };
-const toString = (value) => String(value);
-const typeConverter = { number: toNumber, string: toString, boolean: toBoolean };
+const toString = (value) => value;
+const toObject = (value) => value
+    .trim()
+    .replace(/\[|\]|\s+/g, SYMBOL.NOT_EXISTS)
+    .split(',')
+    .filter(Boolean);
+const typeConverter = {
+    number: toNumber,
+    string: toString,
+    boolean: toBoolean,
+    object: toObject
+};
 export const cast = (key, type, defaultValue) => {
     const value = process.env[key];
     if (value === undefined)

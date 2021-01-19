@@ -1,5 +1,4 @@
-import { SYMBOL } from '../helpers/Constants'
-import type { ProcessEnvProperty } from '../types'
+import { SYMBOL } from '../shared/Constants'
 
 const toNumber = (value: string): number => {
   const result = Number(value)
@@ -29,7 +28,7 @@ const toBoolean = (value: string): boolean => {
 
 const toString = (value: string): string => value
 
-const toObject = (value: string): string[] =>
+const toObject = (value: string): (string | number | boolean)[] =>
   value
     .trim()
     .replace(/\[|\]|\s+/g, SYMBOL.NOT_EXISTS)
@@ -45,19 +44,24 @@ const typeConverter = {
 
 type CastType = 'string' | 'number' | 'boolean' | 'object'
 type PrimitiveType<T> = T extends CastType
-  ? { string: string; number: number; boolean: boolean; object: string[] }[T]
+  ? {
+      string: ReturnType<typeof toString>
+      number: ReturnType<typeof toNumber>
+      boolean: ReturnType<typeof toBoolean>
+      object: ReturnType<typeof toObject>
+    }[T]
   : never
 
 export const cast = <
-  P extends PrimitiveType<T>,
-  K extends keyof ProcessEnvProperty,
-  T extends CastType
+  K extends keyof NodeJS.ProcessEnv,
+  T extends CastType,
+  P extends PrimitiveType<T>
 >(
-  key: K | string,
+  key: K,
   type: T,
   defaultValue?: P
 ): P => {
-  const value = process.env[key]!
+  const value = process.env[key] as string
 
   if (value === undefined)
     if (!defaultValue)
@@ -67,5 +71,3 @@ export const cast = <
     else return defaultValue
   else return typeConverter[type](value) as P
 }
-
-/** @see {@link https://velog.io/@public_danuel/process-env-on-node-js|Node.js 기반에서 환경변수 사용하기} */

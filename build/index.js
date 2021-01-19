@@ -1,28 +1,7 @@
-import { debug as debugWrapper } from 'debug';
-import { inspect } from 'util';
-import { Config } from './bootstrap/Config';
-import { ShardManager } from './bootstrap/ShardManager';
-import { EVENT } from './helpers/Constants';
-const debug = debugWrapper('Shuvi');
-process.on('SIGINT', () => {
-    shardManager.shards.each(shard => {
-        shard.kill();
-        debug('Kill all shards.');
-    });
-});
-process.on('SIGHUP', () => {
-    shardManager.shards.forEach(shard => {
-        shard.emit('SIGINT');
-        debug('Kill all shards before nodemon restart the master.');
-    });
-});
+console.log('hi');
+import { Config } from './bootloader/Config';
 await Config.parse();
-const shardManager = new ShardManager();
-shardManager.on(EVENT.SHARD_CREATE, shard => {
-    debug(`[Shard ${shard.id}] Shard was created!`);
-    shard.on(EVENT.ERROR, console.error);
-    shard.on(EVENT.CLIENT_READY, () => debug(`[Shard ${shard.id}] Shard is ready.`));
-    shard.on(EVENT.MESSAGE_CREATE, data => console.log(`Received ${inspect(data, undefined, 2, true)}`));
-    shard.on(EVENT.SHARD_DEATH, process => debug(`[Shard ${shard.id}] Shard process was dead. {exitCode: ${process.exitCode || 'no provided'}}`));
-});
-await shardManager.spawn();
+console.log('hi3');
+console.log(process.env);
+console.log(process.env.CLIENT_BOOT_TIMEOUT);
+console.log('hi2');
