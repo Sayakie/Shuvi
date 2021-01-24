@@ -48,6 +48,10 @@ export class Task {
     return (this.isActive = !this.isActive)
   }
 
+  valueOf(): number {
+    return Number(this.id)
+  }
+
   toString(): string {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `Task {${this.name} - ${this.description}}[isActive=${this.isActive}]`
