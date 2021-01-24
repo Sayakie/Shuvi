@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "main": "build/index.js",
   "engines": {
-    "node": ">= 12.x"
+    "node": ">= 14"
   },
   "private": true,
   "repository": "github:Sayakie/Shuvi",
@@ -43,8 +43,10 @@
     "dotenv-parse-variables": "^1.0.1",
     "enmap": "^5.7.1",
     "esm": "^3.2.25",
+    "nanoid": "^3.1.20",
     "node-fetch": "^2.6.1",
     "pretty-error": "^3.0.3",
+    "snap-db": "^1.1.6",
     "walk-sync": "^2.2.0",
     "winston": "^3.3.3"
   },

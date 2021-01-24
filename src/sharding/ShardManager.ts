@@ -1,5 +1,7 @@
 import { ShardClientUtil, ShardingManager } from 'discord.js'
 import { extname, join } from 'path'
+import { Shard } from './Shard'
+import { EVENT } from '../shared/Constants'
 import { $main } from '../shared/Path'
 import type { Snowflake } from '../types'
 
@@ -37,5 +39,13 @@ export class ShardManager extends ShardingManager {
 
   shardIDForGuildID(guildID: Snowflake, shardCount: number): number {
     return ShardClientUtil.shardIDForGuildID(guildID, shardCount)
+  }
+
+  createShard(id = this.shards.size): Shard {
+    const shard = new Shard(this, id)
+    this.shards.set(id, shard)
+
+    this.emit(EVENT.SHARD_CREATE, shard)
+    return shard
   }
 }

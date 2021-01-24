@@ -2,18 +2,22 @@ import { Client as DiscordClient, Collection } from 'discord.js'
 import walkSync from 'walk-sync'
 import { ShardIsNotSetupError } from './errors/ShardIsNotSetupError'
 import { core as debug } from './helpers/debugger'
+import { AudioManager } from './managers/AudioManager'
+import { DataManager } from './managers/DataManager'
+import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
+import { cast, check } from './utils'
+import type { Module } from './structs/Module'
 import type { ActivityType, ClientOptions, PresenceStatusData } from 'discord.js'
-import { cast } from './utils'
+
+process.on('uncaughtException', console.error)
+process.on('unhandledRejection', console.error)
 ;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach(signal => {
   process.on(signal, () => {
     /** handles that signal and do nothing */
     return debug(`Received Signal { ${signal} } but do nothing.`)
   })
 })
-
-process.on('uncaughtException', console.error)
-process.on('unhandledRejection', console.error)
 
 export type walkSyncOptions = Parameters<typeof walkSync>[1]
 
@@ -46,8 +50,12 @@ const walkSyncOptions: walkSyncOptions = {
  * Client.initialise()
  */
 export class Client extends DiscordClient {
-  #modules: Collection<string, unknown>
-  #aliases: Collection<string, unknown>
+  private modules: Collection<string, Module>
+  private aliases: Collection<string, Module>
+
+  #audioManager: AudioManager
+  #dataManager: DataManager
+  #taskManager: TaskManager
 
   private constructor(
     options: ClientOptions = {
@@ -68,8 +76,13 @@ export class Client extends DiscordClient {
 
     if (!this.shard) throw new ShardIsNotSetupError()
 
-    this.#modules = new Collection()
-    this.#aliases = new Collection()
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const client = this
+    this.modules = new Collection()
+    this.aliases = new Collection()
+    this.#audioManager = new AudioManager({ client })
+    this.#dataManager = new DataManager({ client })
+    this.#taskManager = new TaskManager({ client })
     this.login()
   }
 
@@ -105,8 +118,20 @@ export class Client extends DiscordClient {
     })
   }
 
+  get audioManager(): AudioManager {
+    return check(this.#audioManager)
+  }
+
+  get dataManager(): DataManager {
+    return check(this.#dataManager)
+  }
+
+  get taskManager(): TaskManager {
+    return check(this.#taskManager)
+  }
+
   toString(): string {
-    return `Shuvi {modules=${this.#modules.size}, plugins=${this.#aliases.size}, uptime=${this
+    return `Shuvi {modules=${this.modules.size}, plugins=${this.aliases.size}, uptime=${this
       .uptime!}}`
   }
 }

@@ -1919,6 +1919,11 @@ mustache@^2.2.1:
   resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.2.tgz#a6d4d9c3f91d13359ab889a812954f9230a3d0c5"
   integrity sha512-KpMNwdQsYz3O/SBS1qJ/o3sqUJ5wSb8gb0pul8CO0S56b9Y2ALm8zCfsjPXsqGFfoNBkDwZuZIAjhsZI03gYVQ==
 
+nanoid@^3.1.20:
+  version "3.1.20"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.20.tgz#badc263c6b1dcf14b71efaa85f6ab4c1d6cfc788"
+  integrity sha512-a1cQNyczgKbLX9jwbS/+d7W8fX/RfgYR7lVWwWOGIPNgK2m0MWvrGF6/m4kk6U3QcFMnZf3RIhL0v2Jgh/0Uxw==
+
 napi-build-utils@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-1.0.2.tgz#b1fddc0b2c46e380a0b7a76f984dd47c41a13806"
@@ -2488,6 +2493,11 @@ slice-ansi@^4.0.0:
     ansi-styles "^4.0.0"
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
+
+snap-db@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/snap-db/-/snap-db-1.1.6.tgz#ee223c79dcfb4945af29b6ae32c9562988623d5d"
+  integrity sha512-KxsO5RnY70J48f6poy0qVm2WS8ZbqG0PUVP2fjd7dvlaCMZ/DxtDv5fhhIVwkP2lOmNQ9QsTFfDuCA7N+TF3qg==
 
 source-map-support@^0.5.17:
   version "0.5.19"
