@@ -7,8 +7,15 @@ import { DataManager } from './managers/DataManager'
 import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
 import { cast, check } from './utils'
+import type {
+  ActivityType,
+  ClientOptions,
+  Guild,
+  MessageEmbedOptions,
+  PresenceStatusData,
+  Snowflake
+} from 'discord.js'
 import type { Module } from './structs/Module'
-import type { ActivityType, ClientOptions, PresenceStatusData } from 'discord.js'
 
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)
@@ -20,6 +27,20 @@ process.on('unhandledRejection', console.error)
 })
 
 export type walkSyncOptions = Parameters<typeof walkSync>[1]
+export type guildSettings = {
+  invoke: string
+  welcomeMessage: {
+    type: 'dm' | 'specified_channel'
+    channelId: string | null
+    content: string | Partial<MessageEmbedOptions>
+  } | null
+  welcomeRole: {
+    timing: 'always' | 'captcha' | 'reaction'
+    roleId: string | null
+  } | null
+  disableMentions: NonNullable<ClientOptions['disableMentions']>
+  allowedMentions: Snowflake[]
+}
 
 const {
   SHUVI_LAZY_INITIALISE,
@@ -51,7 +72,9 @@ const walkSyncOptions: walkSyncOptions = {
  */
 export class Client extends DiscordClient {
   private modules: Collection<string, Module>
-  private aliases: Collection<string, Module>
+  aliases: Collection<string, Module>
+
+  #observer: unknown
 
   #audioManager: AudioManager
   #dataManager: DataManager
@@ -95,6 +118,8 @@ export class Client extends DiscordClient {
    * @return {Promise<Client>} The Shuvi client
    */
   static async initialise(options?: ClientOptions): Promise<Client> {
+    if (this.instance) return Promise.resolve(this.instance)
+
     return new Promise((resolve, reject) => {
       const cleanup = () => {
         clearTimeout(bootupTimeout)
@@ -118,6 +143,18 @@ export class Client extends DiscordClient {
     })
   }
 
+  static guildSettings: guildSettings = {
+    invoke: '+',
+    welcomeMessage: null,
+    welcomeRole: null,
+    disableMentions: 'none',
+    allowedMentions: ['']
+  }
+
+  get observer(): unknown {
+    return check(this.#observer)
+  }
+
   get audioManager(): AudioManager {
     return check(this.#audioManager)
   }
@@ -130,9 +167,52 @@ export class Client extends DiscordClient {
     return check(this.#taskManager)
   }
 
+  /**
+   * Increments max listeners by one, if they are not zero.
+   *
+   * @param {number} [count]
+   * @see {@link https://github.com/discordjs/discord.js/blob/master/src/client/BaseClient.js#L146|Original source}
+   */
+  incrementMaxListener(count = 1): void {
+    const maxListeners = this.getMaxListeners()
+    if (maxListeners !== 0) {
+      this.setMaxListeners(maxListeners + count)
+    }
+  }
+
+  /**
+   * Decrements max listeners by one, if they are not zero.
+   *
+   * @param {number} [count]
+   * @see {@link https://github.com/discordjs/discord.js/blob/master/src/client/BaseClient.js#L157|Original source}
+   */
+  decrementMaxListener(count = 1): void {
+    const maxListeners = this.getMaxListeners()
+    if (maxListeners !== 0 && maxListeners - count >= 0) {
+      this.setMaxListeners(maxListeners - count)
+    }
+  }
+
+  async loadGuildSettings(guild: Guild): Promise<guildSettings> {
+    const NullableGuildSettings = await this.dataManager.guilds.get(guild.id)
+    if (!NullableGuildSettings) {
+      debug(
+        `Guild <${guild.name}(${guild.id})> seems do not have guild settings.\nSo Client created a new settings for it!`
+      )
+
+      const guildSettings = JSON.stringify(Client.guildSettings)
+
+      await this.dataManager.guilds.put(guild.id, guildSettings)
+      return Client.guildSettings
+    }
+
+    const guildSettings = JSON.parse(NullableGuildSettings) as guildSettings
+
+    return guildSettings
+  }
+
   toString(): string {
-    return `Shuvi {modules=${this.modules.size}, plugins=${this.aliases.size}, uptime=${this
-      .uptime!}}`
+    return `Shuvi {modules=${this.modules.size}, uptime=${this.uptime!}}`
   }
 }
 
