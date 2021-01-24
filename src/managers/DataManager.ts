@@ -10,6 +10,7 @@ export type DataManagerOptions = {
 
 export class DataManager {
   public client: Client
+  public guilds: DataSet<string>
 
   #datasets: Collection<string, DataSet<unknown>>
 
@@ -18,6 +19,7 @@ export class DataManager {
 
     this.client = client
     this.#datasets = new Collection()
+    this.guilds = this.create({ dir: 'data/guilds' })
   }
 
   static createOptions: DataSetOptions = {

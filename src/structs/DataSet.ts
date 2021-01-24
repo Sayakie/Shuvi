@@ -5,38 +5,30 @@ export type DataSetOptions = Exclude<ConstructorParameters<typeof SnapDB>[0], st
   name?: string
 }
 
-export const set2 = {
-  isLoad: {
-    deep: true,
-    learning: false
-  },
-  hi: 0
-}
-
-export type DataSetKey<K, P> = K extends string | number
-  ? P extends string | number
-    ? `${K}${'' extends P ? '' : '.'}${P}`
-    : never
-  : never
-export const a: DataSetKey<{ a: { b: true; c: false } }> = ''
-
-export type set = `get${Capitalize<keyof typeof set2>}`
-
 export class DataSet<T> extends SnapDB<T> {
   public name: string
+  public dir: string
 
-  constructor(options: DataSetOptions) {
-    options = Object.assign(
-      {
+  constructor(options?: DataSetOptions) {
+    options = {
+      ...{
+        dir: nanoid(5),
         key: 'string',
         autoFlush: true,
         cache: true,
         mainThread: false
       },
-      options
-    )
+      ...options
+    }
+    const dir = options.dir
+    options.dir = `data/${options.dir}`
 
     super(options, options.key, options.cache)
-    this.name = options.name || nanoid(5)
+    this.name = options.name || dir
+    this.dir = dir
+  }
+
+  toString(): string {
+    return `DataSet {name=${this.name}, dir=${this.dir}}`
   }
 }
