@@ -50,12 +50,14 @@ type PrimitiveType<T> = T extends CastType
       boolean: ReturnType<typeof toBoolean>
       object: ReturnType<typeof toObject>
     }[T]
+  : T extends keyof NodeJS.ProcessEnv
+  ? NodeJS.ProcessEnv[T]
   : never
 
 export const cast = <
   K extends keyof NodeJS.ProcessEnv,
   T extends CastType,
-  P extends PrimitiveType<T>
+  P extends PrimitiveType<K>
 >(
   key: K,
   type: T,

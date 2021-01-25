@@ -8,5 +8,5 @@ export type ModuleEntry = {
   default: new (options: ModuleOptions) => Module
 }
 export type PluginEntry = {
-  default: (options: PluginOptions) => void | Promise<void>
+  default: (options: PluginOptions) => FunctionConstructor
 }

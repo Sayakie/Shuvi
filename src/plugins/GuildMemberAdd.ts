@@ -5,7 +5,7 @@ import { MessageEmbed } from 'discord.js'
 import type { PluginGateway } from '../structs/Plugin'
 import type { GuildMember } from 'discord.js'
 
-export default (Plugin => {
+export default ((Plugin) => {
   const { client } = Plugin
 
   const guildMemberAddHandler = async (member: GuildMember) => {
@@ -22,7 +22,7 @@ export default (Plugin => {
       if (type === 'dm') {
         debug(`Type is DM`)
 
-        member.send(message)
+        await member.send(message)
       } else if (type === 'specified_channel') {
         debug(`Type is Specified_channel`)
 

@@ -9,7 +9,6 @@ import { EVENT } from './shared/Constants'
 import { $main } from './shared/Path'
 import { cast, check } from './utils'
 import type {
-  ActivityType,
   ClientOptions,
   Guild,
   MessageEmbedOptions,
@@ -21,7 +20,7 @@ import type { ModuleEntry, PluginEntry } from './types'
 
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)
-;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach(signal => {
+;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
   process.on(signal, () => {
     /** handles that signal and do nothing */
     return debug(`Received Signal { ${signal} } but do nothing.`)
@@ -76,6 +75,7 @@ const walkSyncOptions: walkSyncOptions = {
 export class Client extends DiscordClient {
   private modules: Collection<string, Module>
   aliases: Collection<string, Module>
+  private plugins: Array<FunctionConstructor>
 
   #observer: unknown
 
@@ -92,7 +92,7 @@ export class Client extends DiscordClient {
         status: cast('CLIENT_STATUS', 'string', 'online' as PresenceStatusData),
         activity: {
           name: CLIENT_ACTIVITY_NAME,
-          type: CLIENT_ACTIVITY_TYPE as ActivityType,
+          type: CLIENT_ACTIVITY_TYPE,
           url: CLIENT_ACTIVITY_URL
         }
       }
@@ -106,12 +106,13 @@ export class Client extends DiscordClient {
     const client = this
     this.modules = new Collection()
     this.aliases = new Collection()
+    this.plugins = []
     this.#audioManager = new AudioManager({ client })
     this.#dataManager = new DataManager({ client })
     this.#taskManager = new TaskManager({ client })
-    this.loadModules()
-    this.loadPlugins()
-    this.login()
+    void this.loadModules()
+    void this.loadPlugins()
+    void this.login()
   }
 
   private static instance: Client
@@ -149,7 +150,7 @@ export class Client extends DiscordClient {
   }
 
   static guildSettings: guildSettings = {
-    invoke: '+',
+    invoke: cast('CLIENT_INVOKE', 'string', '+'),
     welcomeMessage: {},
     welcomeRole: {},
     disableMentions: 'none',
@@ -212,7 +213,7 @@ export class Client extends DiscordClient {
       debug(`Loaded <Module {${Module.name}}`)
 
       this.modules.set(Module.name.toLowerCase(), Module)
-      Module.aliases.forEach(alias => {
+      Module.aliases.forEach((alias) => {
         this.aliases.set(alias.toLowerCase(), Module)
       })
     }
@@ -227,7 +228,8 @@ export class Client extends DiscordClient {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const plugin: PluginEntry = await import(`${Entry}`)
 
-      await plugin.default({ client: this })
+      const cleanup = plugin.default({ client: this })
+      this.plugins.push(cleanup)
     }
   }
 
@@ -249,6 +251,15 @@ export class Client extends DiscordClient {
     return guildSettings
   }
 
+  destroy(): void {
+    this.plugins.forEach((pluginCleanup) => {
+      debug(`Detach plugin...`)
+      pluginCleanup()
+    })
+
+    super.destroy()
+  }
+
   toString(): string {
     return `Shuvi {modules=${this.modules.size}, uptime=${this.uptime!}}`
   }
@@ -260,8 +271,8 @@ const mockInitialise = async () => {
   return Promise.resolve(mockClient)
 }
 
-const onConnect = (client: Client) => {
-  if (client.shard) client.shard.send({ type: 'undefined', payload: client })
+const onConnect = async (client: Client) => {
+  if (client.shard) await client.shard.send({ type: 'undefined', payload: client })
 }
 
 const onFail = (error: string | string[]) => {

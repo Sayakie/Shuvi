@@ -98,7 +98,7 @@ export abstract class Module {
           'This function provided for only `Guild` (alias as server)! DM do not allowed to use.'
         )
 
-      this.message.channel.send(Embed)
+      void this.message.channel.send(Embed)
       return dummyModule as this
     }
 
