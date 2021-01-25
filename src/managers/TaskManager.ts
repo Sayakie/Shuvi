@@ -1,6 +1,9 @@
 import { Collection } from 'discord.js'
+import { nanoid } from 'nanoid'
 import { Client } from '../App'
+import { EVENT } from '../shared/Constants'
 import { Task } from '../structs/Task'
+import type { TaskOptions } from '../structs/Task'
 
 export type TaskManagerOptions = {
   client: Client
@@ -33,6 +36,21 @@ export class TaskManager {
     }
 
     return activeTasks
+  }
+
+  public create(name: string, options?: TaskOptions): Task {
+    options = {
+      ...{
+        name: name || nanoid(5),
+        timeout: 5000
+      },
+      ...options
+    }
+
+    const task = new Task(options)
+
+    this.client.emit(EVENT.TASK_CREATE, task)
+    return task
   }
 
   public toString(): string {

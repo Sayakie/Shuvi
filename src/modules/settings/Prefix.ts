@@ -1,6 +1,5 @@
 import { Category } from '../../structs/Category'
 import { Module } from '../../structs/Module'
-import type { DataSet } from '../../structs/DataSet'
 import type { ModuleOptions } from '../../structs/Module'
 
 export class Prefix extends Module {
@@ -16,30 +15,38 @@ export class Prefix extends Module {
 
   async run(): Promise<void> {
     const {
-      client: { settings },
+      client,
       message,
       message: { guild, channel }
     } = this
     const { [0]: newPrefix, [1]: denyPrefix } = this.args
 
     if (denyPrefix) {
-      await message.reply('prefix witch spaces are not allowed!').then(async msg => {
-        await message.delete()
-        await msg.delete()
+      await message.reply('prefix with spaces are not allowed!').then(msg => {
+        setTimeout(() => {
+          message.delete()
+          msg.delete()
+        }, 5000)
       })
 
       return
     } else if (newPrefix.length >= 3) {
-      await channel.send('No prefix more than 3 characters!').then(async msg => {
-        await message.delete()
-        await msg.delete()
+      await channel.send('No prefix more than 3 characters!').then(msg => {
+        setTimeout(() => {
+          message.delete()
+          msg.delete()
+        }, 5000)
       })
 
       return
     }
 
-    const guildSettings = this.client.dataManager.find(this.message.guild!.id) as DataSet<string>
-    guildSettings.get('')
+    const guildSettings = await client.loadGuildSettings(guild!)
+    guildSettings.invoke = newPrefix
+    const stringified = JSON.stringify(guildSettings)
+
+    await client.dataManager.guilds.put(guild!.id, stringified)
+    await message.reply(`Set prefix to \`${newPrefix}\`!`)
   }
 }
 

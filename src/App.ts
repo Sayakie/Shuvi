@@ -6,6 +6,7 @@ import { AudioManager } from './managers/AudioManager'
 import { DataManager } from './managers/DataManager'
 import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
+import { $main } from './shared/Path'
 import { cast, check } from './utils'
 import type {
   ActivityType,
@@ -16,6 +17,7 @@ import type {
   Snowflake
 } from 'discord.js'
 import type { Module } from './structs/Module'
+import type { ModuleEntry, PluginEntry } from './types'
 
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)
@@ -30,14 +32,15 @@ export type walkSyncOptions = Parameters<typeof walkSync>[1]
 export type guildSettings = {
   invoke: string
   welcomeMessage: {
-    type: 'dm' | 'specified_channel'
-    channelId: string | null
-    content: string | Partial<MessageEmbedOptions>
-  } | null
+    type?: 'dm' | 'specified_channel'
+    channelId?: string | null
+    content?: string | Partial<MessageEmbedOptions>
+  }
   welcomeRole: {
-    timing: 'always' | 'captcha' | 'reaction'
-    roleId: string | null
-  } | null
+    timing?: 'always' | 'captcha' | 'react'
+    roleId?: string | null
+    channelId?: string | null
+  }
   disableMentions: NonNullable<ClientOptions['disableMentions']>
   allowedMentions: Snowflake[]
 }
@@ -106,6 +109,8 @@ export class Client extends DiscordClient {
     this.#audioManager = new AudioManager({ client })
     this.#dataManager = new DataManager({ client })
     this.#taskManager = new TaskManager({ client })
+    this.loadModules()
+    this.loadPlugins()
     this.login()
   }
 
@@ -145,8 +150,8 @@ export class Client extends DiscordClient {
 
   static guildSettings: guildSettings = {
     invoke: '+',
-    welcomeMessage: null,
-    welcomeRole: null,
+    welcomeMessage: {},
+    welcomeRole: {},
     disableMentions: 'none',
     allowedMentions: ['']
   }
@@ -190,6 +195,39 @@ export class Client extends DiscordClient {
     const maxListeners = this.getMaxListeners()
     if (maxListeners !== 0 && maxListeners - count >= 0) {
       this.setMaxListeners(maxListeners - count)
+    }
+  }
+
+  private async loadModules(dir = 'modules') {
+    debug(`load client modules.`)
+    const entries = walkSync(`${$main}/${dir}`, walkSyncOptions)
+
+    // eslint-disable-next-line no-loops/no-loops
+    for (const Entry of entries) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const moduleEntry: ModuleEntry = await import(`${Entry}`)
+
+      // eslint-disable-next-line new-cap
+      const Module = new moduleEntry.default({ client: this })
+      debug(`Loaded <Module {${Module.name}}`)
+
+      this.modules.set(Module.name.toLowerCase(), Module)
+      Module.aliases.forEach(alias => {
+        this.aliases.set(alias.toLowerCase(), Module)
+      })
+    }
+  }
+
+  private async loadPlugins() {
+    debug(`load client plugins`)
+    const entries = walkSync(`${$main}/plugins`, walkSyncOptions)
+
+    // eslint-disable-next-line no-loops/no-loops
+    for (const Entry of entries) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const plugin: PluginEntry = await import(`${Entry}`)
+
+      await plugin.default({ client: this })
     }
   }
 

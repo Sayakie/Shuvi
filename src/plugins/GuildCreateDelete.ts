@@ -3,7 +3,7 @@ import { Client } from '../App'
 import { plugin as debug } from '../helpers/debugger'
 import { EVENT } from '../shared/Constants'
 import type { Guild } from 'discord.js'
-import type { PluginEntry } from '../structs/Plugin'
+import type { PluginGateway } from '../structs/Plugin'
 
 export default (Plugin => {
   const { client } = Plugin
@@ -30,4 +30,4 @@ export default (Plugin => {
     client.off(EVENT.GUILD_CREATE, guildCreateHandler)
     client.off(EVENT.GUILD_DELETE, guildDeleteHandler)
   }
-}) as PluginEntry
+}) as PluginGateway
