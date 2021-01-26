@@ -8,13 +8,7 @@ import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
 import { $main } from './shared/Path'
 import { cast, check } from './utils'
-import type {
-  ClientOptions,
-  Guild,
-  MessageEmbedOptions,
-  PresenceStatusData,
-  Snowflake
-} from 'discord.js'
+import type { ClientOptions, Guild, MessageEmbedOptions, Snowflake } from 'discord.js'
 import type { Module } from './structs/Module'
 import type { ModuleEntry, PluginEntry } from './types'
 
@@ -89,7 +83,7 @@ export class Client extends DiscordClient {
       messageCacheLifetime: cast('CLIENT_MESSAGE_CACHE_LIFETIME', 'number', 3600),
       messageSweepInterval: cast('CLIENT_MESSAGE_SWEEP_INTERVAL', 'number', 300),
       presence: {
-        status: cast('CLIENT_STATUS', 'string', 'online' as PresenceStatusData),
+        status: cast('CLIENT_STATUS', 'string', 'online'),
         activity: {
           name: CLIENT_ACTIVITY_NAME,
           type: CLIENT_ACTIVITY_TYPE,
