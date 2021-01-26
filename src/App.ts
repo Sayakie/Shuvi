@@ -18,8 +18,8 @@ import type {
 import type { Module } from './structs/Module'
 import type { ModuleEntry, PluginEntry } from './types'
 
-process.on('uncaughtException', console.error)
-process.on('unhandledRejection', console.error)
+process.on('uncaughtException', (e) => console.error(e))
+process.on('unhandledRejection', (e) => console.error(e))
 ;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
   process.on(signal, () => {
     /** handles that signal and do nothing */
