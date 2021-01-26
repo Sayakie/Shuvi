@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Client as DiscordClient, Collection } from 'discord.js'
 import walkSync from 'walk-sync'
 import { ShardIsNotSetupError } from './errors/ShardIsNotSetupError'
@@ -8,7 +9,7 @@ import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
 import { $main } from './shared/Path'
 import { cast, check } from './utils'
-import type { ClientOptions, Guild, MessageEmbedOptions, Snowflake } from 'discord.js'
+import type { ClientOptions, Guild, Message, MessageEmbedOptions, Snowflake } from 'discord.js'
 import type { Module } from './structs/Module'
 import type { ModuleEntry, PluginEntry } from './types'
 
@@ -243,6 +244,48 @@ export class Client extends DiscordClient {
     const guildSettings = JSON.parse(NullableGuildSettings) as guildSettings
 
     return guildSettings
+  }
+
+  private async onPrivateMessage(message: Message): Promise<void> {
+    await message.reply(message.content)
+  }
+
+  private async onMessage(message: Message): Promise<void> {
+    // Prevents incoming message from system
+    if (message.system) return
+
+    // Prevent incoming message from direct/private
+    if (!message.guild) {
+      return await this.onPrivateMessage(message)
+    }
+
+    const guildSettings = await this.loadGuildSettings(message.guild)
+
+    // Prevent message did not matches
+    if (!message.cleanContent.startsWith(guildSettings.invoke) || message.author.equals(this.user!))
+      return
+
+    const args = message.cleanContent.slice(guildSettings.invoke.length).trim().split(/\s+/g)
+    const token = args.shift()!.toLowerCase()
+
+    // Early return that did not match any modules
+    if (!(this.modules.has(token) || this.aliases.has(token))) {
+      await message.reply(`${token} 명령이 없습니다!`)
+      return
+    }
+
+    try {
+      const module = this.modules.get(token)! || this.aliases.get(token)!
+
+      await module.inject(message, args).run()
+    } catch (error) {
+      await message.reply(`명령을 실행하는데 에러가 발생했어요! ${error as string}`)
+      console.error(error)
+    }
+  }
+
+  public bindEvents(): void {
+    this.on(EVENT.MESSAGE_CREATE, async (message) => await this.onMessage(message))
   }
 
   destroy(): void {
