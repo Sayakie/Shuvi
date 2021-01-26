@@ -1,9 +1,12 @@
 declare namespace NodeJS {
+  // @ts-ignore
+  // eslint-disable-next-line spaced-comment, @typescript-eslint/triple-slash-reference
+  /// <reference path="../node_modules/discord.js/typings/index.d.ts" />
   import type { ActivityType, PresenceStatusData } from 'discord.js'
 
   type NodeEnvironment = 'production' | 'development' | 'debug' | 'test'
 
-  interface ProcessEnv {
+  interface ShuviProcessEnv {
     SHUVI_LAZY_INITIALISE: boolean
 
     NODE_ENV: NodeEnvironment
@@ -25,4 +28,11 @@ declare namespace NodeJS {
 
     OWNERS: Array<string | number>
   }
+
+  // @ts-ignore
+  interface ProcessEnv extends ShuviProcessEnv {}
+}
+
+declare module '@Shuvi/internal' {
+  type InternalEnv = NodeJS.ProcessEnv
 }
