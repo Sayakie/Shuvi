@@ -1,8 +1,8 @@
 import { Collection } from 'discord.js'
 import { nanoid } from 'nanoid'
-import { Client } from '../App'
 import { EVENT } from '../shared/Constants'
 import { Task } from '../structs/Task'
+import type { Client } from '../App'
 import type { TaskOptions } from '../structs/Task'
 
 export type TaskManagerOptions = {

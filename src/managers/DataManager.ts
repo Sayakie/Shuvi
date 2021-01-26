@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 import { Collection } from 'discord.js'
-import { Client } from '../App'
 import { DataSet } from '../structs/DataSet'
+import type { Client } from '../App'
 import type { DataSetOptions } from '../structs/DataSet'
 
 export type DataManagerOptions = {

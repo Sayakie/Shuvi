@@ -1,6 +1,6 @@
 import { Collection } from 'discord.js'
-import { Client } from '../App'
 import { Dispatcher } from '../structs/Dispatcher'
+import type { Client } from '../App'
 
 export type AudioManagerOptions = {
   client: Client
