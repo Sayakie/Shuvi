@@ -1,5 +1,6 @@
 import { Category } from '../../structs/Category'
 import { Module } from '../../structs/Module'
+import type { Role } from 'discord.js'
 import type { ModuleOptions } from '../../structs/Module'
 
 export class SetRole extends Module {
@@ -22,13 +23,17 @@ export class SetRole extends Module {
     } = this
     const { [0]: roleId } = this.args
 
-    const role = guild!.roles.resolve(roleId)
+    const role: Role | null = message.mentions.roles.first() || guild!.roles.resolve(roleId)
+
     if (!role) {
-      await this.message.reply('mentioned role does not exist!').then(msg => {
-        setTimeout(() => {
-          message.delete()
-          msg.delete()
-        }, 5000)
+      await this.message.reply('mentioned role does not exist!').then(async (msg) => {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            void message.delete()
+            void msg.delete()
+            resolve(void 0)
+          }, 5000)
+        })
       })
 
       return

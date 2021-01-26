@@ -22,20 +22,26 @@ export class Prefix extends Module {
     const { [0]: newPrefix, [1]: denyPrefix } = this.args
 
     if (denyPrefix) {
-      await message.reply('prefix with spaces are not allowed!').then(msg => {
-        setTimeout(() => {
-          message.delete()
-          msg.delete()
-        }, 5000)
+      await message.reply('prefix with spaces are not allowed!').then(async (msg) => {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            void message.delete()
+            void msg.delete()
+            resolve(void 0)
+          }, 5000)
+        })
       })
 
       return
     } else if (newPrefix.length >= 3) {
-      await channel.send('No prefix more than 3 characters!').then(msg => {
-        setTimeout(() => {
-          message.delete()
-          msg.delete()
-        }, 5000)
+      await channel.send('No prefix more than 3 characters!').then(async (msg) => {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            void message.delete()
+            void msg.delete()
+            resolve(void 0)
+          }, 5000)
+        })
       })
 
       return
