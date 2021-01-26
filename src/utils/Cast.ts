@@ -43,33 +43,38 @@ const typeConverter = {
 }
 
 type CastType = 'string' | 'number' | 'boolean' | 'object'
-type PrimitiveType<T> = T extends CastType
+// type CastTypeInfer<T> = T extends keyof NodeJS.ShuviProcessEnv ? NodeJS.ProcessEnv[T] : CastType
+type InferValue<T> = T extends CastType
   ? {
       string: ReturnType<typeof toString>
       number: ReturnType<typeof toNumber>
       boolean: ReturnType<typeof toBoolean>
       object: ReturnType<typeof toObject>
     }[T]
-  : T extends keyof NodeJS.ProcessEnv
+  : T extends keyof NodeJS.ShuviProcessEnv
   ? NodeJS.ProcessEnv[T]
   : never
 
-export const cast = <
-  K extends keyof NodeJS.ProcessEnv,
-  T extends CastType,
-  P extends PrimitiveType<K>
->(
-  key: K,
+/* type CastTypeInferer<T> = T extends keyof NodeJS.ShuviProcessEnv
+  ? NodeJS.ShuviProcessEnv[T] extends PrimitiveType<CastType>
+    ? PrimitiveType<typeof InternalEnv>
+    : CastType
+  : CastType */
+
+export function cast<S extends string, T extends CastType, P extends InferValue<T>>(
+  key: S,
   type: T,
   defaultValue?: P
-): P => {
+): P
+export function cast<
+  K extends keyof NodeJS.ShuviProcessEnv,
+  T extends CastType,
+  P extends InferValue<K>
+>(key: K, type: T, defaultValue?: P): P {
   const value = process.env[key] as string
 
   if (value === undefined)
-    if (!defaultValue)
-      throw new Error(
-        `Expected ${key} but not found. Pass [Key {${key}}] into .env file or type "cross-env ${key}=value" in cli.`
-      )
+    if (!defaultValue) throw new Error(`Expected ${key} but not found. Pass it into ".env" file!`)
     else return defaultValue
   else return typeConverter[type](value) as P
 }
