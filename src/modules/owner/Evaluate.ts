@@ -2,6 +2,7 @@ import { MessageEmbed } from 'discord.js'
 import { SYMBOL } from '../../shared/Constants'
 import { Category } from '../../structs/Category'
 import { Module } from '../../structs/Module'
+import { inspect } from 'util'
 import type { ModuleOptions } from '../../structs/Module'
 
 type HRTime = ReturnType<NodeJS.HRTime> | null
@@ -35,6 +36,10 @@ export class Evaluate extends Module {
             evaled = await evaled
           }
 
+          if (typeof evaled === 'object') {
+            evaled = inspect(evaled, { depth: 0 })
+          }
+
           return evaled
         }.apply(this.client, [code])
 
@@ -49,13 +54,13 @@ export class Evaluate extends Module {
 
     const embed = new MessageEmbed()
       .setTitle(`**${this.message.author.tag}** performs`)
-      .setColor(this.message.guild ? this.message.member!.displayColor : '#0099cc')
+      .setColor(this.message.guild ? this.message.member!.displayColor : 'RANDOM')
       .addField('input', `\`\`\`js\n${code}\n\`\`\``)
       .addField('output', `\`\`\`\n${result as string}\n\`\`\``)
       .setFooter(`PS ${this.done}ms`)
       .setTimestamp()
 
-    await this.message.channel.send(embed)
+    await this.message.channel.send(embed, { split: true })
   }
 }
 
