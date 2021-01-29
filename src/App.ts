@@ -69,7 +69,7 @@ const walkSyncOptions: walkSyncOptions = {
  */
 export class Client extends DiscordClient {
   private modules: Collection<string, Module>
-  aliases: Collection<string, Module>
+  private aliases: Collection<string, Module>
   private plugins: Array<FunctionConstructor>
 
   #observer: unknown
@@ -107,6 +107,7 @@ export class Client extends DiscordClient {
     this.#taskManager = new TaskManager({ client })
     void this.loadModules()
     void this.loadPlugins()
+    void this.bindEvents()
     void this.login()
   }
 
@@ -118,7 +119,7 @@ export class Client extends DiscordClient {
    * @param {ClientOptions} [options] Options for a client
    * @return {Promise<Client>} The Shuvi client
    */
-  static async initialise(options?: ClientOptions): Promise<Client> {
+  public static async initialise(options?: ClientOptions): Promise<Client> {
     if (this.instance) return Promise.resolve(this.instance)
 
     return new Promise((resolve, reject) => {
@@ -144,7 +145,7 @@ export class Client extends DiscordClient {
     })
   }
 
-  static guildSettings: guildSettings = {
+  public static guildSettings: guildSettings = {
     invoke: cast('CLIENT_INVOKE', 'string', '+'),
     welcomeMessage: {},
     welcomeRole: {},
@@ -174,7 +175,7 @@ export class Client extends DiscordClient {
    * @param {number} [count]
    * @see {@link https://github.com/discordjs/discord.js/blob/master/src/client/BaseClient.js#L146|Original source}
    */
-  incrementMaxListener(count = 1): void {
+  public incrementMaxListener(count = 1): void {
     const maxListeners = this.getMaxListeners()
     if (maxListeners !== 0) {
       this.setMaxListeners(maxListeners + count)
@@ -187,7 +188,7 @@ export class Client extends DiscordClient {
    * @param {number} [count]
    * @see {@link https://github.com/discordjs/discord.js/blob/master/src/client/BaseClient.js#L157|Original source}
    */
-  decrementMaxListener(count = 1): void {
+  public decrementMaxListener(count = 1): void {
     const maxListeners = this.getMaxListeners()
     if (maxListeners !== 0 && maxListeners - count >= 0) {
       this.setMaxListeners(maxListeners - count)
@@ -228,7 +229,7 @@ export class Client extends DiscordClient {
     }
   }
 
-  async loadGuildSettings(guild: Guild): Promise<guildSettings> {
+  public async loadGuildSettings(guild: Guild): Promise<guildSettings> {
     const NullableGuildSettings = await this.dataManager.guilds.get(guild.id)
     if (!NullableGuildSettings) {
       debug(
@@ -284,11 +285,11 @@ export class Client extends DiscordClient {
     }
   }
 
-  public bindEvents(): void {
+  private bindEvents(): void {
     this.on(EVENT.MESSAGE_CREATE, async (message) => await this.onMessage(message))
   }
 
-  destroy(): void {
+  public destroy(): void {
     this.plugins.forEach((pluginCleanup) => {
       debug(`Detach plugin...`)
       pluginCleanup()
@@ -297,7 +298,7 @@ export class Client extends DiscordClient {
     super.destroy()
   }
 
-  toString(): string {
+  public toString(): string {
     return `Shuvi {modules=${this.modules.size}, plugins=${this.plugins.length}, uptime=${this
       .uptime!}}`
   }

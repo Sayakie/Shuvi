@@ -20,7 +20,7 @@ export class Config {
    * @param {string} [path]
    * @return {Promise<DotenvParseOutput>}
    */
-  static async parse(path = `${$root}/.env`): Promise<DotenvParseOutput> {
+  public static async parse(path = `${$root}/.env`): Promise<DotenvParseOutput> {
     return new Promise((resolve, reject) => {
       try {
         let env = load({
