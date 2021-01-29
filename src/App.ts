@@ -298,7 +298,8 @@ export class Client extends DiscordClient {
   }
 
   toString(): string {
-    return `Shuvi {modules=${this.modules.size}, uptime=${this.uptime!}}`
+    return `Shuvi {modules=${this.modules.size}, plugins=${this.plugins.length}, uptime=${this
+      .uptime!}}`
   }
 }
 
