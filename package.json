@@ -25,10 +25,11 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node --experimental-modules --es-module-specifier-resolution=node build/index.js",
     "start:watch": "nodemon --watch build --ext js --signal SIGHUP build/index.js --",
-    "dev": "cross-env NODE_ENV=development DEBUG=*,-dotenv-parse-variables ESM_DISABLE_CACHE=true TS_NODE_FILES=true TS_NODE_PROJECT=tsconfig.json node --experimental-modules --es-module-specifier-resolution=node -r esm -r ts-node/register src/index.ts",
-    "dev:watch": "nodemon --verbose --watch src --ext .ts --ignore tests/ --ignore *.test.ts --ignore *.spec.ts --delay 1 --signal SIGHUP --exec yarn dev --",
+    "dev": "cross-env NODE_ENV=development DEBUG=*,-dotenv-parse-variables ESM_DISABLE_CACHE=true TS_NODE_FILES=true TS_NODE_PROJECT=tsconfig.json node --experimental-modules --es-module-specifier-resolution=node --require \"esm\" --require \"ts-node/register\" src/index.ts",
+    "dev:watch": "nodemon --verbose --watch src --ext .ts --ignore tests/ --ignore *.test.ts --delay 1 --signal SIGHUP --exec yarn dev --",
     "prebuild": "del-cli --force build",
     "build": "tsc --project tsconfig.json",
+    "test": "mocha --require \"ts-node/register\" --require \"source-map-support/register\" --recursive \"test/**/*.test.ts\"",
     "lint": "eslint --color --ext .ts,.js \"src/\"",
     "lint:fix": "yarn lint --fix"
   },
@@ -48,18 +49,23 @@
     "walk-sync": "^2.2.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.14",
     "@types/debug": "^4.1.5",
+    "@types/mocha": "^8.2.0",
     "@types/node": "^14.0.27",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
     "@typescript-eslint/parser": "^3.9.0",
+    "chai": "^4.2.0",
     "del-cli": "^3.0.1",
     "eslint": "^7.6.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.2.1",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
+    "source-map-support": "^0.5.19",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   },
