@@ -19,7 +19,7 @@ export class DataManager {
 
     this.client = client
     this.#datasets = new Collection()
-    this.guilds = this.create({ dir: 'data/guilds' })
+    this.guilds = this.create({ dir: 'guilds' })
   }
 
   static createOptions: DataSetOptions = {
