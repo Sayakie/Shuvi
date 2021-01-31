@@ -15,7 +15,7 @@ import type { ModuleEntry, PluginEntry } from './types'
 
 process.on('uncaughtException', (e) => console.error(e))
 process.on('unhandledRejection', (e) => console.error(e))
-;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
+;(['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGKILL', 'SIGTERM'] as NodeJS.Signals[]).forEach((signal) => {
   process.on(signal, () => {
     /** handles that signal and do nothing */
     return debug(`Received Signal { ${signal} } but do nothing.`)

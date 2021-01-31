@@ -11,7 +11,7 @@ import { ShardManager } from './sharding/ShardManager'
 import { core as debug } from './helpers/debugger'
 import { EVENT } from './shared/Constants'
 import { inspect } from 'util'
-;(['SIGINT', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
+;(['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGKILL', 'SIGTERM'] as NodeJS.Signals[]).forEach((signal) => {
   process.once(signal, () => {
     debug('Destroy all shards.')
     shardManager.shards.forEach((shard) => shard.kill())
