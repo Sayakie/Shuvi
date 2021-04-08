@@ -29,7 +29,7 @@
     "dev:watch": "nodemon --verbose --watch src --ext .ts --ignore tests/ --ignore *.test.ts --delay 1 --signal SIGHUP --exec yarn dev --",
     "prebuild": "del-cli --force build",
     "build": "tsc --project tsconfig.json",
-    "test": "mocha --require \"ts-node/register\" --require \"source-map-support/register\" --recursive \"test/**/*.test.ts\"",
+    "test": "cross-env NODE_ENV=development TS_NODE_FILES=true TS_NODE_PROJECT=tsconfig.json mocha --require \"esm\" --require \"ts-node/register\" --recursive \"test/**/*.test.ts\"",
     "lint": "eslint --color --ext .ts,.js \"src/\"",
     "lint:fix": "yarn lint --fix"
   },

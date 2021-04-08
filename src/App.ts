@@ -9,7 +9,14 @@ import { TaskManager } from './managers/TaskManager'
 import { EVENT } from './shared/Constants'
 import { $main } from './shared/Path'
 import { cast, check } from './utils'
-import type { ClientOptions, Guild, Message, MessageEmbedOptions, Snowflake } from 'discord.js'
+import type {
+  ClientOptions,
+  Guild,
+  Message,
+  MessageEmbedOptions,
+  Snowflake,
+  VoiceChannel
+} from 'discord.js'
 import type { Module } from './structs/Module'
 import type { ModuleEntry, PluginEntry } from './types'
 
@@ -82,15 +89,7 @@ export class Client extends DiscordClient {
     options: ClientOptions = {
       messageCacheMaxSize: cast('CLIENT_MESSAGE_CACHE_SIZE', 'number', 1000),
       messageCacheLifetime: cast('CLIENT_MESSAGE_CACHE_LIFETIME', 'number', 3600),
-      messageSweepInterval: cast('CLIENT_MESSAGE_SWEEP_INTERVAL', 'number', 300),
-      presence: {
-        status: cast('CLIENT_STATUS', 'string', 'online'),
-        activity: {
-          name: CLIENT_ACTIVITY_NAME,
-          type: CLIENT_ACTIVITY_TYPE,
-          url: CLIENT_ACTIVITY_URL
-        }
-      }
+      messageSweepInterval: cast('CLIENT_MESSAGE_SWEEP_INTERVAL', 'number', 300)
     }
   ) {
     super(options)
@@ -143,6 +142,10 @@ export class Client extends DiscordClient {
       this.instance = new Client(options)
       this.instance.once(EVENT.CLIENT_READY, onReady)
     })
+  }
+
+  public static getInstance(): Client {
+    return check(this.instance)
   }
 
   public static guildSettings: guildSettings = {
@@ -311,7 +314,12 @@ const mockInitialise = async () => {
 }
 
 const onConnect = async (client: Client) => {
-  if (client.shard) await client.shard.send({ type: 'undefined', payload: client })
+  if (client.shard) {
+    await client.shard.send({ type: 'undefined', payload: client })
+    await (client.guilds
+      .resolve('471737560524390420')!
+      .channels.cache.get('742318193493934120')! as VoiceChannel).join()
+  }
 }
 
 const onFail = (error: string | string[]) => {
